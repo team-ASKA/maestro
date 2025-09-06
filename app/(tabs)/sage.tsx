@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Send, User, Bot, Sparkles } from 'lucide-react-native';
+import { Send } from 'lucide-react-native';
 import { ChatMessage } from '@/components/ChatMessage';
 import { useFonts } from 'expo-font';
 
@@ -145,7 +145,6 @@ export default function AISage() {
           {isTyping && (
             <View style={styles.typingContainer}>
               <View style={styles.typingBubble}>
-                <Bot size={20} color="#000000" />
                 <Text style={styles.typingText}>The Sage is consulting ancient scrolls...</Text>
               </View>
             </View>
@@ -267,22 +266,21 @@ const styles = StyleSheet.create({
   },
   typingContainer: {
     alignSelf: 'flex-start',
-    marginVertical: 8,
+    marginVertical: 6,
+    paddingHorizontal: 16,
   },
   typingBubble: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    maxWidth: '80%',
     padding: 12,
-    borderRadius: 16,
+    borderRadius: 12,
     backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#cccccc',
+    borderColor: '#e0e0e0',
   },
   typingText: {
-    fontSize: 12,
+    fontSize: 16,
     fontFamily: 'Minecraftia',
-    color: '#666666',
-    marginLeft: 8,
+    color: '#000000',
     letterSpacing: 1,
   },
   inputContainer: {
