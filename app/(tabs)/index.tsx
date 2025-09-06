@@ -115,19 +115,47 @@ export default function FinanceHome() {
             <Text style={styles.sectionTitle}>ACTIONS</Text>
             <View style={styles.actionGrid}>
               <TouchableOpacity style={styles.actionCard}>
-                <Text style={styles.actionText}>ADD TRANSACTION</Text>
+                <LinearGradient
+                  colors={['#000000', '#333333', '#000000', '#444444']}
+                  style={styles.actionGradient}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 1}}
+                >
+                  <Text style={styles.actionText}>ADD TRANSACTION</Text>
+                </LinearGradient>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
-                <Text style={styles.actionText}>VIEW REPORTS</Text>
+                <LinearGradient
+                  colors={['#000000', '#333333', '#000000', '#444444']}
+                  style={styles.actionGradient}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 1}}
+                >
+                  <Text style={styles.actionText}>VIEW REPORTS</Text>
+                </LinearGradient>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
-                <Text style={styles.actionText}>SET BUDGET</Text>
+                <LinearGradient
+                  colors={['#000000', '#333333', '#000000', '#444444']}
+                  style={styles.actionGradient}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 1}}
+                >
+                  <Text style={styles.actionText}>SET BUDGET</Text>
+                </LinearGradient>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
-                <Text style={styles.actionText}>EXPORT DATA</Text>
+                <LinearGradient
+                  colors={['#000000', '#333333', '#000000', '#444444']}
+                  style={styles.actionGradient}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 1}}
+                >
+                  <Text style={styles.actionText}>EXPORT DATA</Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           </View>
@@ -137,25 +165,53 @@ export default function FinanceHome() {
             <Text style={styles.sectionTitle}>OVERVIEW</Text>
             <View style={styles.cardRow}>
               <View style={styles.overviewCard}>
-                <Text style={styles.cardValue}>{formatCurrency(financialData.totalBalance)}</Text>
-                <Text style={styles.cardLabel}>TOTAL BALANCE</Text>
+                <LinearGradient
+                  colors={['#000000', '#333333', '#000000', '#444444']}
+                  style={styles.cardGradient}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 1}}
+                >
+                  <Text style={styles.cardValue}>{formatCurrency(financialData.totalBalance)}</Text>
+                  <Text style={styles.cardLabel}>TOTAL BALANCE</Text>
+                </LinearGradient>
               </View>
               
               <View style={styles.overviewCard}>
-                <Text style={styles.cardValue}>{formatCurrency(financialData.netWorth)}</Text>
-                <Text style={styles.cardLabel}>NET WORTH</Text>
+                <LinearGradient
+                  colors={['#000000', '#333333', '#000000', '#444444']}
+                  style={styles.cardGradient}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 1}}
+                >
+                  <Text style={styles.cardValue}>{formatCurrency(financialData.netWorth)}</Text>
+                  <Text style={styles.cardLabel}>NET WORTH</Text>
+                </LinearGradient>
               </View>
             </View>
 
             <View style={styles.cardRow}>
               <View style={styles.overviewCard}>
-                <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyIncome)}</Text>
-                <Text style={styles.cardLabel}>MONTHLY INCOME</Text>
+                <LinearGradient
+                  colors={['#000000', '#333333', '#000000', '#444444']}
+                  style={styles.cardGradient}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 1}}
+                >
+                  <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyIncome)}</Text>
+                  <Text style={styles.cardLabel}>MONTHLY INCOME</Text>
+                </LinearGradient>
               </View>
               
               <View style={styles.overviewCard}>
-                <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyExpenses)}</Text>
-                <Text style={styles.cardLabel}>MONTHLY EXPENSES</Text>
+                <LinearGradient
+                  colors={['#000000', '#333333', '#000000', '#444444']}
+                  style={styles.cardGradient}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 1}}
+                >
+                  <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyExpenses)}</Text>
+                  <Text style={styles.cardLabel}>MONTHLY EXPENSES</Text>
+                </LinearGradient>
               </View>
             </View>
           </View>
@@ -164,13 +220,20 @@ export default function FinanceHome() {
           <View style={styles.netIncomeSection}>
             <Text style={styles.sectionTitle}>NET INCOME</Text>
             <View style={styles.netIncomeCard}>
-              <View style={styles.netIncomeHeader}>
-                <Text style={styles.netIncomeTitle}>MONTHLY NET INCOME</Text>
-                <Text style={styles.changePercentage}>+{getChangePercentage()}%</Text>
-              </View>
-              <Text style={styles.netIncomeValue}>
-                {formatCurrency(financialData.monthlyIncome - financialData.monthlyExpenses)}
-              </Text>
+              <LinearGradient
+                colors={['#000000', '#333333', '#000000', '#444444']}
+                style={styles.netIncomeGradient}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
+              >
+                <View style={styles.netIncomeHeader}>
+                  <Text style={styles.netIncomeTitle}>MONTHLY NET INCOME</Text>
+                  <Text style={styles.changePercentage}>+{getChangePercentage()}%</Text>
+                </View>
+                <Text style={styles.netIncomeValue}>
+                  {formatCurrency(financialData.monthlyIncome - financialData.monthlyExpenses)}
+                </Text>
+              </LinearGradient>
             </View>
           </View>
 
@@ -178,20 +241,27 @@ export default function FinanceHome() {
           <View style={styles.spendingSection}>
             <Text style={styles.sectionTitle}>SPENDING BREAKDOWN</Text>
             <View style={styles.spendingCard}>
-              {financialData.monthlySpendingByCategory.map((item, index) => (
-                <View key={index} style={styles.categoryRow}>
-                  <View style={styles.categoryInfo}>
-                    <Text style={styles.categoryName}>{item.category}</Text>
-                    <Text style={styles.categoryAmount}>{formatCurrency(item.amount)}</Text>
+              <LinearGradient
+                colors={['#000000', '#333333', '#000000', '#444444']}
+                style={styles.spendingGradient}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
+              >
+                {financialData.monthlySpendingByCategory.map((item, index) => (
+                  <View key={index} style={styles.categoryRow}>
+                    <View style={styles.categoryInfo}>
+                      <Text style={styles.categoryName}>{item.category}</Text>
+                      <Text style={styles.categoryAmount}>{formatCurrency(item.amount)}</Text>
+                    </View>
+                    <View style={styles.progressBarContainer}>
+                      <View 
+                        style={[styles.progressBar, { width: `${item.percentage}%` }]}
+                      />
+                    </View>
+                    <Text style={styles.categoryPercentage}>{item.percentage}%</Text>
                   </View>
-                  <View style={styles.progressBarContainer}>
-                    <View 
-                      style={[styles.progressBar, { width: `${item.percentage}%` }]}
-                    />
-                  </View>
-                  <Text style={styles.categoryPercentage}>{item.percentage}%</Text>
-                </View>
-              ))}
+                ))}
+              </LinearGradient>
             </View>
           </View>
 
@@ -200,20 +270,27 @@ export default function FinanceHome() {
             <Text style={styles.sectionTitle}>RECENT TRANSACTIONS</Text>
             
             <View style={styles.transactionsCard}>
-              {financialData.recentTransactions.slice(0, 5).map((transaction) => (
-                <View key={transaction.id} style={styles.transactionRow}>
-                  <View style={styles.transactionInfo}>
-                    <Text style={styles.transactionName}>{transaction.name}</Text>
-                    <Text style={styles.transactionCategory}>{transaction.category}</Text>
+              <LinearGradient
+                colors={['#000000', '#333333', '#000000', '#444444']}
+                style={styles.transactionsGradient}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
+              >
+                {financialData.recentTransactions.slice(0, 5).map((transaction) => (
+                  <View key={transaction.id} style={styles.transactionRow}>
+                    <View style={styles.transactionInfo}>
+                      <Text style={styles.transactionName}>{transaction.name}</Text>
+                      <Text style={styles.transactionCategory}>{transaction.category}</Text>
+                    </View>
+                    <View style={styles.transactionAmount}>
+                      <Text style={styles.transactionValue}>
+                        {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+                      </Text>
+                      <Text style={styles.transactionDate}>{transaction.date}</Text>
+                    </View>
                   </View>
-                  <View style={styles.transactionAmount}>
-                    <Text style={styles.transactionValue}>
-                      {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
-                    </Text>
-                    <Text style={styles.transactionDate}>{transaction.date}</Text>
-                  </View>
-                </View>
-              ))}
+                ))}
+              </LinearGradient>
             </View>
           </View>
         </ScrollView>
@@ -250,11 +327,14 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: 'Inter_700Bold',
     color: '#000000',
-    letterSpacing: 4,
+    letterSpacing: 5,
     textTransform: 'uppercase',
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   uploadButton: {
     backgroundColor: '#000000',
@@ -263,22 +343,28 @@ const styles = StyleSheet.create({
   },
   uploadButtonText: {
     color: '#ffffff',
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
-    letterSpacing: 2,
+    letterSpacing: 3,
     textTransform: 'uppercase',
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   scrollView: {
     flex: 1,
     paddingHorizontal: 20,
   },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 16,
     fontFamily: 'Inter_700Bold',
     color: '#000000',
     marginBottom: 15,
-    letterSpacing: 3,
+    letterSpacing: 4,
     textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   // Quick Actions
   quickActionsSection: {
@@ -292,18 +378,23 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: '48%',
-    backgroundColor: '#000000',
+    marginBottom: 15,
+    overflow: 'hidden',
+  },
+  actionGradient: {
     padding: 20,
     alignItems: 'center',
-    marginBottom: 15,
   },
   actionText: {
-    fontSize: 8,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
     textAlign: 'center',
-    letterSpacing: 2,
+    letterSpacing: 3,
     textTransform: 'uppercase',
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   // Overview Cards
   overviewSection: {
@@ -316,32 +407,42 @@ const styles = StyleSheet.create({
   },
   overviewCard: {
     flex: 0.48,
-    backgroundColor: '#000000',
+    overflow: 'hidden',
+  },
+  cardGradient: {
     padding: 20,
     alignItems: 'center',
   },
   cardValue: {
-    fontSize: 12,
+    fontSize: 16,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
     textAlign: 'center',
-    letterSpacing: 1,
+    letterSpacing: 2,
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   cardLabel: {
-    fontSize: 6,
+    fontSize: 8,
     fontFamily: 'Inter_700Bold',
     color: '#cccccc',
     marginTop: 8,
     textAlign: 'center',
-    letterSpacing: 2,
+    letterSpacing: 3,
     textTransform: 'uppercase',
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   // Net Income Section
   netIncomeSection: {
     marginBottom: 30,
   },
   netIncomeCard: {
-    backgroundColor: '#000000',
+    overflow: 'hidden',
+  },
+  netIncomeGradient: {
     padding: 20,
   },
   netIncomeHeader: {
@@ -351,31 +452,42 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   netIncomeTitle: {
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
-    letterSpacing: 2,
+    letterSpacing: 3,
     textTransform: 'uppercase',
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   changePercentage: {
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
-    letterSpacing: 2,
+    letterSpacing: 3,
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   netIncomeValue: {
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
     textAlign: 'center',
-    letterSpacing: 1,
+    letterSpacing: 2,
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   // Spending Section
   spendingSection: {
     marginBottom: 30,
   },
   spendingCard: {
-    backgroundColor: '#000000',
+    overflow: 'hidden',
+  },
+  spendingGradient: {
     padding: 20,
   },
   categoryRow: {
@@ -387,22 +499,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryName: {
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
-    letterSpacing: 2,
+    letterSpacing: 3,
     textTransform: 'uppercase',
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   categoryAmount: {
-    fontSize: 8,
+    fontSize: 10,
     fontFamily: 'Inter_700Bold',
     color: '#cccccc',
     marginTop: 2,
-    letterSpacing: 1,
+    letterSpacing: 2,
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   progressBarContainer: {
     flex: 1,
-    height: 8,
+    height: 10,
     backgroundColor: '#ffffff',
     marginHorizontal: 15,
   },
@@ -411,19 +529,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   categoryPercentage: {
-    fontSize: 8,
+    fontSize: 10,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
     minWidth: 35,
     textAlign: 'right',
     letterSpacing: 2,
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   // Transactions Section
   transactionsSection: {
     marginBottom: 30,
   },
   transactionsCard: {
-    backgroundColor: '#000000',
+    overflow: 'hidden',
+  },
+  transactionsGradient: {
     padding: 20,
   },
   transactionRow: {
@@ -436,34 +559,46 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   transactionName: {
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
-    letterSpacing: 2,
+    letterSpacing: 3,
     textTransform: 'uppercase',
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   transactionCategory: {
-    fontSize: 8,
+    fontSize: 10,
     fontFamily: 'Inter_700Bold',
     color: '#cccccc',
     marginTop: 2,
-    letterSpacing: 2,
+    letterSpacing: 3,
     textTransform: 'uppercase',
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   transactionAmount: {
     alignItems: 'flex-end',
   },
   transactionValue: {
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
-    letterSpacing: 1,
+    letterSpacing: 2,
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   transactionDate: {
-    fontSize: 6,
+    fontSize: 8,
     fontFamily: 'Inter_700Bold',
     color: '#cccccc',
     marginTop: 2,
-    letterSpacing: 2,
+    letterSpacing: 3,
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
 });
