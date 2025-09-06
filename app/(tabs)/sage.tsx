@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Send, User, Bot, Sparkles } from 'lucide-react-native';
 import { ChatMessage } from '@/components/ChatMessage';
@@ -17,14 +17,7 @@ export default function AISage() {
     'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Greetings, young warrior! I am the Financial Sage, your guide on this epic journey to wealth mastery. I possess ancient wisdom about investments, budgeting, and building your financial empire. What challenges do you face today?',
-      sender: 'sage',
-      timestamp: new Date(),
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -40,6 +33,18 @@ export default function AISage() {
 
   const handleSendMessage = () => {
     if (inputText.trim() === '') return;
+
+    // If this is the first message, add initial sage greeting
+    if (messages.length === 0) {
+      const initialMessage: Message = {
+        id: '0',
+        text: 'Greetings, young warrior! I am the Financial Sage, your guide on this epic journey to wealth mastery. I possess ancient wisdom about investments, budgeting, and building your financial empire. What challenges do you face today?',
+        sender: 'sage',
+        timestamp: new Date(),
+      };
+      
+      setMessages([initialMessage]);
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -74,6 +79,18 @@ export default function AISage() {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [messages, isTyping]);
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 150);
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+    };
+  }, []);
+
   if (!fontsLoaded) {
     return null;
   }
@@ -82,7 +99,8 @@ export default function AISage() {
     <View style={styles.container}>
       <KeyboardAvoidingView 
         style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'position' : 'height'}
+        keyboardVerticalOffset={0}
       >
         {/* Header */}
         <View style={styles.headerContainer}>
@@ -104,26 +122,34 @@ export default function AISage() {
           </View>
         </View>
 
-        {/* Messages */}
+        {/* Messages with Sage Image */}
         <ScrollView
           ref={scrollViewRef}
           style={styles.messagesContainer}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.messagesContent}
         >
+          {/* Sage Image at top */}
+          <View style={styles.sageImageContainer}>
+            <Image
+              source={require('../../assets/images/sage.jpeg')}
+              style={styles.sageImage}
+              resizeMode="cover"
+            />
+            <Text style={styles.sageWelcomeText}>Ask the Sage for wisdom...</Text>
+          </View>
+          
+          {/* Chat Messages */}
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
           
           {isTyping && (
             <View style={styles.typingContainer}>
-              <LinearGradient
-                colors={['#374151', '#4b5563']}
-                style={styles.typingBubble}
-              >
-                <Bot size={20} color="#d4af37" />
+              <View style={styles.typingBubble}>
+                <Bot size={20} color="#000000" />
                 <Text style={styles.typingText}>The Sage is consulting ancient scrolls...</Text>
-              </LinearGradient>
+              </View>
             </View>
           )}
         </ScrollView>
@@ -137,6 +163,11 @@ export default function AISage() {
               placeholderTextColor="#666666"
               value={inputText}
               onChangeText={setInputText}
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollToEnd({ animated: true });
+                }, 100);
+              }}
               multiline
               maxLength={500}
             />
@@ -154,29 +185,6 @@ export default function AISage() {
           </View>
         </View>
 
-        {/* Quick Questions */}
-        <ScrollView
-          horizontal
-          style={styles.quickQuestions}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.quickQuestionsContent}
-        >
-          {[
-            'How do I start investing?',
-            'Create a budget',
-            'Pay off debt faster',
-            'Build emergency fund',
-            'Retirement planning',
-          ].map((question, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.quickQuestionButton}
-              onPress={() => setInputText(question)}
-            >
-              <Text style={styles.quickQuestionText}>{question}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );
@@ -231,12 +239,34 @@ const styles = StyleSheet.create({
     height: 24,
     alignSelf: 'flex-start',
   },
+  sageImageContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 20,
+    marginBottom: 20,
+  },
+  sageImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    marginBottom: 15,
+  },
+  sageWelcomeText: {
+    fontSize: 12,
+    fontFamily: 'Minecraftia',
+    color: '#666666',
+    textAlign: 'center',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
   messagesContainer: {
     flex: 1,
     paddingHorizontal: 20,
   },
   messagesContent: {
-    paddingBottom: 20,
+    paddingBottom: 100,
+    flexGrow: 1,
   },
   typingContainer: {
     alignSelf: 'flex-start',
@@ -260,7 +290,8 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 20,
+    paddingBottom: 30,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -285,27 +316,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     borderRadius: 8,
     padding: 10,
-  },
-  quickQuestions: {
-    paddingBottom: 10,
-  },
-  quickQuestionsContent: {
-    paddingHorizontal: 20,
-    gap: 10,
-  },
-  quickQuestionButton: {
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#cccccc',
-  },
-  quickQuestionText: {
-    fontSize: 10,
-    fontFamily: 'Minecraftia',
-    color: '#000000',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
   },
 });
