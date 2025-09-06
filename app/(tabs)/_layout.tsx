@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
-import { User, Map, MessageCircle, Settings } from 'lucide-react-native';
+import { Home, User, Map, MessageCircle } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -25,9 +25,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Character',
+          title: 'Home',
           tabBarIcon: ({ size, color }) => (
-            <User size={size} color={color} strokeWidth={2.5} />
+            <Home size={size} color={color} strokeWidth={2.5} />
           ),
         }}
       />
@@ -52,9 +52,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: 'Profile',
           tabBarIcon: ({ size, color }) => (
-            <Settings size={size} color={color} strokeWidth={2.5} />
+            <User size={size} color={color} strokeWidth={2.5} />
           ),
         }}
       />
