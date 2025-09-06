@@ -177,8 +177,8 @@ const styles = StyleSheet.create({
   bar: {
     width: 20,
     borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#000000',
+    borderWidth: 1,
+    borderColor: '#cccccc',
   },
   barLabel: {
     fontSize: 8,
@@ -204,8 +204,8 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderWidth: 3,
-    borderColor: '#000000',
+    borderWidth: 1,
+    borderColor: '#cccccc',
     marginBottom: 20,
     overflow: 'hidden',
     flexDirection: 'row',
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: '#000000',
+    borderColor: '#cccccc',
   },
   legendText: {
     flex: 1,
@@ -284,8 +284,8 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#10B981',
-    borderWidth: 2,
-    borderColor: '#000000',
+    borderWidth: 1,
+    borderColor: '#cccccc',
     position: 'absolute',
   },
   lineLabels: {
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     margin: 1,
     borderRadius: 2,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#cccccc',
   },
   activityLegend: {
     flexDirection: 'row',
@@ -348,6 +348,6 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 2,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#cccccc',
   },
 });

@@ -5,6 +5,7 @@ import { Upload, TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3, File
 import { useFonts } from 'expo-font';
 import * as DocumentPicker from 'expo-document-picker';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
+import { SetBudgetModal } from '@/components/SetBudgetModal';
 import { router } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
@@ -23,6 +24,7 @@ export default function FinanceHome() {
   });
 
   const [showAddTransactionModal, setShowAddTransactionModal] = useState(false);
+  const [showSetBudgetModal, setShowSetBudgetModal] = useState(false);
 
   const [financialData, setFinancialData] = useState({
     totalBalance: 3425600, // ₹34.25 Lakh
@@ -125,15 +127,18 @@ export default function FinanceHome() {
   };
 
   const handleSetBudget = () => {
-    Alert.alert('Set Budget', 'Budget management feature coming soon!', [
+    setShowSetBudgetModal(true);
+  };
+
+  const handleBudgetSet = (budgetData: any) => {
+    // In a real app, you would save this to your database
+    Alert.alert('Budget Set!', `${budgetData.period} budget of ₹${budgetData.amount.toLocaleString('en-IN')} set for ${budgetData.category}`, [
       { text: 'OK', style: 'default' }
     ]);
   };
 
-  const handleExportData = () => {
-    Alert.alert('Export Data', 'Data export feature coming soon!', [
-      { text: 'OK', style: 'default' }
-    ]);
+  const handleInvestments = () => {
+    router.push('/investments');
   };
 
 
@@ -215,14 +220,14 @@ export default function FinanceHome() {
               
               <TouchableOpacity 
                 style={styles.actionCard}
-                onPress={handleExportData}
+                onPress={handleInvestments}
               >
                 <Image
                   source={require('../../assets/images/ExportData.jpeg')}
                   style={styles.actionImage}
                   resizeMode="cover"
                 />
-                <Text style={styles.actionText}>EXPORT DATA</Text>
+                <Text style={styles.actionText}>INVESTMENTS</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -346,6 +351,12 @@ export default function FinanceHome() {
         visible={showAddTransactionModal}
         onClose={() => setShowAddTransactionModal(false)}
         onAddTransaction={handleAddTransaction}
+      />
+
+      <SetBudgetModal
+        visible={showSetBudgetModal}
+        onClose={() => setShowSetBudgetModal(false)}
+        onSetBudget={handleBudgetSet}
       />
     </View>
   );

@@ -212,23 +212,31 @@ export default function ReportsScreen() {
             <View style={styles.summaryGrid}>
               <View style={styles.summaryCard}>
                 <TrendingUp size={24} color="#10B981" strokeWidth={3} />
-                <Text style={styles.summaryValue}>₹36L</Text>
-                <Text style={styles.summaryLabel}>HIGHEST GOLD</Text>
+                <View style={styles.summaryContent}>
+                  <Text style={styles.summaryValue}>₹36L</Text>
+                  <Text style={styles.summaryLabel}>HIGHEST GOLD</Text>
+                </View>
               </View>
               <View style={styles.summaryCard}>
                 <TrendingDown size={24} color="#DC2626" strokeWidth={3} />
-                <Text style={styles.summaryValue}>₹8.5L</Text>
-                <Text style={styles.summaryLabel}>BIGGEST EXPENSE</Text>
+                <View style={styles.summaryContent}>
+                  <Text style={styles.summaryValue}>₹8.5L</Text>
+                  <Text style={styles.summaryLabel}>BIGGEST EXPENSE</Text>
+                </View>
               </View>
               <View style={styles.summaryCard}>
                 <Target size={24} color="#7C3AED" strokeWidth={3} />
-                <Text style={styles.summaryValue}>127</Text>
-                <Text style={styles.summaryLabel}>TOTAL QUESTS</Text>
+                <View style={styles.summaryContent}>
+                  <Text style={styles.summaryValue}>127</Text>
+                  <Text style={styles.summaryLabel}>TOTAL QUESTS</Text>
+                </View>
               </View>
               <View style={styles.summaryCard}>
                 <Calendar size={24} color="#F59E0B" strokeWidth={3} />
-                <Text style={styles.summaryValue}>23</Text>
-                <Text style={styles.summaryLabel}>ACTIVE DAYS</Text>
+                <View style={styles.summaryContent}>
+                  <Text style={styles.summaryValue}>23</Text>
+                  <Text style={styles.summaryLabel}>ACTIVE DAYS</Text>
+                </View>
               </View>
             </View>
           </View>
@@ -320,8 +328,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     backgroundColor: '#ffffff',
-    borderWidth: 3,
-    borderColor: '#000000',
+    borderWidth: 1,
+    borderColor: '#cccccc',
     borderRadius: 8,
     alignItems: 'center',
   },
@@ -347,29 +355,32 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     backgroundColor: '#ffffff',
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 12,
-    padding: 10,
+    borderWidth: 1,
+    borderColor: '#cccccc',
+    borderRadius: 8,
+    padding: 15,
     alignItems: 'center',
   },
   summarySection: {
     marginBottom: 40,
   },
   summaryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
     gap: 15,
   },
   summaryCard: {
-    width: '48%',
+    width: '100%',
     backgroundColor: '#ffffff',
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#cccccc',
+    borderRadius: 8,
     padding: 15,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 15,
+  },
+  summaryContent: {
+    flex: 1,
   },
   summaryValue: {
     fontSize: 14,
