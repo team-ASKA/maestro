@@ -1,153 +1,369 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { MapPin, Crown, Trash as Treasure, Target, CircleCheck as CheckCircle, Star, Gift, Lock } from 'lucide-react-native';
-import { QuestCard } from '@/components/QuestCard';
-import { ProgressionPath } from '@/components/ProgressionPath';
-import { useFonts, Orbitron_400Regular, Orbitron_700Bold, Orbitron_900Black } from '@expo-google-fonts/orbitron';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
+import { Lock, Target, Flame, Crown, Star } from 'lucide-react-native';
+import { useFonts } from 'expo-font';
+import { AddTransactionModal } from '@/components/AddTransactionModal';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
-export default function QuestMap() {
+// Color constants - emerald green for completed, black/white for untouched
+const COLORS = {
+  emeraldGreen: '#10B981',
+  darkEmerald: '#059669',
+  crimsonRed: '#DC2626',
+  black: '#000000',
+  white: '#FFFFFF',
+  grey: '#666666',
+  lightGrey: '#f5f5f5',
+  darkGrey: '#374151',
+};
+
+interface Level {
+  id: number;
+  day: number;
+  title: string;
+  completed: boolean;
+  hasExpenses: boolean;
+  expenseAmount: number;
+  date: Date;
+  streak: number;
+}
+
+export default function FinancialJourneyMap() {
   const [fontsLoaded] = useFonts({
-    Orbitron_400Regular,
-    Orbitron_700Bold,
-    Orbitron_900Black,
+    'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
 
-  const [pathLevels] = useState([
-    { id: 1, day: 1, title: 'First Steps', icon: '🌱', completed: true, type: 'daily', reward: 25 },
-    { id: 2, day: 2, title: 'Budget Basics', icon: '📊', completed: true, type: 'daily', reward: 25 },
-    { id: 3, day: 3, title: 'Expense Tracking', icon: '📝', completed: true, type: 'daily', reward: 25 },
-    { id: 4, day: 4, title: 'Savings Goal', icon: '🎯', completed: true, type: 'daily', reward: 25 },
-    { id: 5, day: 5, title: 'Emergency Fund', icon: '🛡️', completed: true, type: 'milestone', reward: 100 },
-    { id: 6, day: 6, title: 'Investment Start', icon: '📈', completed: false, type: 'daily', reward: 30 },
-    { id: 7, day: 7, title: 'Weekly Review', icon: '🔍', completed: false, type: 'weekly', reward: 50 },
-    { id: 8, day: 8, title: 'Debt Strategy', icon: '⚔️', completed: false, type: 'daily', reward: 30 },
-    { id: 9, day: 9, title: 'Risk Assessment', icon: '⚖️', completed: false, type: 'daily', reward: 30 },
-    { id: 10, day: 10, title: 'Investment Shrine', icon: '🏛️', completed: false, type: 'milestone', reward: 150 },
-    { id: 11, day: 11, title: 'Portfolio Balance', icon: '⚖️', completed: false, type: 'daily', reward: 35 },
-    { id: 12, day: 12, title: 'Tax Planning', icon: '📋', completed: false, type: 'daily', reward: 35 },
-    { id: 13, day: 13, title: 'Insurance Check', icon: '🛡️', completed: false, type: 'daily', reward: 35 },
-    { id: 14, day: 14, title: 'Bi-weekly Boss', icon: '🐉', completed: false, type: 'boss', reward: 200 },
-    { id: 15, day: 15, title: 'Wealth Temple', icon: '🏰', completed: false, type: 'milestone', reward: 300 },
-  ]);
+  const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
+  const [currentStreak, setCurrentStreak] = useState(1);
+  const [showQuestPopup, setShowQuestPopup] = useState(false);
+  const [completedDays, setCompletedDays] = useState<Set<number>>(new Set()); // Track completed days
 
-  const currentDay = 5; // User's current progress
+  const currentDay = 1; // Current progress day - start from day 1
+  const totalXP = 1250; // Current XP
+  const currentLevel = Math.floor(totalXP / 1000) + 1;
+
+  // Optimized level generation with useMemo to prevent re-renders
+  const levels = useMemo(() => {
+    const startDate = new Date('2024-09-06'); // Start from today (September 6, 2024)
+    const generatedLevels: Level[] = [];
+    
+    // Generate only necessary levels (current + 10 ahead)
+    for (let i = 0; i <= currentDay + 10; i++) {
+      const levelDate = new Date(startDate);
+      levelDate.setDate(startDate.getDate() + i);
+      
+      const isCompleted = completedDays.has(i + 1);
+      generatedLevels.push({
+        id: i + 1,
+        day: i + 1,
+        title: `Day ${i + 1}`,
+        completed: isCompleted,
+        hasExpenses: isCompleted, // Has expenses if completed
+        expenseAmount: isCompleted ? 2500 : 0, // Sample amount if completed
+        date: levelDate,
+        streak: isCompleted ? i + 1 : 0,
+      });
+    }
+    // Reverse array so latest days appear at top (upward progression)
+    return generatedLevels.reverse();
+  }, [currentDay, completedDays]);
+
+  // Long-term quests data - memoized for performance
+  const longTermQuests = useMemo(() => [
+    {
+      id: 1,
+      title: 'Emergency Fund',
+      description: 'Save ₹1,00,000 for emergencies',
+      progress: 65,
+      current: 65000,
+      target: 100000,
+      reward: 500,
+      difficulty: 'Epic',
+      icon: '🛡️'
+    },
+    {
+      id: 2,
+      title: 'Investment Portfolio',
+      description: 'Build a ₹5,00,000 investment portfolio',
+      progress: 32,
+      current: 160000,
+      target: 500000,
+      reward: 1000,
+      difficulty: 'Legendary',
+      icon: '📈'
+    },
+    {
+      id: 3,
+      title: 'Debt Freedom',
+      description: 'Pay off all credit card debt',
+      progress: 78,
+      current: 78000,
+      target: 100000,
+      reward: 750,
+      difficulty: 'Rare',
+      icon: '⚔️'
+    }
+  ], []);
 
   if (!fontsLoaded) {
     return null;
   }
 
-  const renderPathLevel = (level, index) => {
-    const isUnlocked = level.day <= currentDay + 1;
-    const isActive = level.day === currentDay + 1;
-    const isCompleted = level.completed;
-    
-    const getLevelColors = () => {
-      if (level.type === 'boss') return ['#e53e3e', '#c53030'];
-      if (level.type === 'milestone') return ['#d69e2e', '#b7791f'];
-      if (level.type === 'weekly') return ['#805ad5', '#6b46c1'];
-      return ['#38a169', '#2f855a'];
-    };
-
-    const getPositionStyle = () => {
-      const isEven = index % 2 === 0;
-      return {
-        alignSelf: isEven ? 'flex-start' : 'flex-end',
-        marginLeft: isEven ? 20 : 0,
-        marginRight: isEven ? 0 : 20,
-      };
-    };
-
-    return (
-      <View key={level.id} style={[styles.levelContainer, getPositionStyle()]}>
-        {/* Connecting Path Line */}
-        {index > 0 && (
-          <View style={styles.pathLine}>
-            <LinearGradient
-              colors={isCompleted ? ['#38a169', '#2f855a'] : ['#4a5568', '#2d3748']}
-              style={styles.pathLineGradient}
-            />
-          </View>
-        )}
-        
-        {/* Level Node */}
-        <TouchableOpacity 
-          style={[styles.levelNode, !isUnlocked && styles.lockedNode]}
-          disabled={!isUnlocked}
-        >
-          <LinearGradient
-            colors={isCompleted ? ['#38a169', '#2f855a'] : 
-                   isActive ? ['#3182ce', '#2c5282'] :
-                   isUnlocked ? getLevelColors() : ['#4a5568', '#2d3748']}
-            style={styles.levelNodeGradient}
-          >
-            {!isUnlocked ? (
-              <Lock size={24} color="#a0aec0" />
-            ) : (
-              <Text style={styles.levelIcon}>{level.icon}</Text>
-            )}
-            
-            {isCompleted && (
-              <View style={styles.completedBadge}>
-                <CheckCircle size={16} color="#38a169" />
-              </View>
-            )}
-          </LinearGradient>
-        </TouchableOpacity>
-        
-        {/* Level Info Card */}
-        <View style={[styles.levelInfoCard, !isUnlocked && styles.lockedCard]}>
-          <LinearGradient
-            colors={['rgba(26, 32, 44, 0.9)', 'rgba(45, 55, 72, 0.9)']}
-            style={styles.levelInfoGradient}
-          >
-            <Text style={styles.levelDay}>Day {level.day}</Text>
-            <Text style={styles.levelTitle}>{level.title}</Text>
-            <View style={styles.levelReward}>
-              <Star size={12} color="#d69e2e" />
-              <Text style={styles.rewardText}>{level.reward} XP</Text>
-            </View>
-            <Text style={styles.levelType}>{level.type.toUpperCase()}</Text>
-          </LinearGradient>
-        </View>
-      </View>
-    );
+  const handleLevelPress = (level: Level) => {
+    if (level.completed) {
+      // Show details for completed level with improved styling
+      Alert.alert(
+        `🎉 Day ${level.day} Completed!`,
+        `📅 Date: ${level.date.toLocaleDateString('en-IN', { 
+          day: '2-digit', 
+          month: 'short',
+          year: 'numeric'
+        })}\n\n💰 Expenses Logged: ${formatCurrency(level.expenseAmount)}\n\n✅ Status: Successfully Completed\n🔥 Streak Day: ${level.streak}\n\n🏆 Great job staying on track!`,
+        [
+          { 
+            text: 'Awesome!', 
+            style: 'default',
+            onPress: () => {}
+          }
+        ],
+        { 
+          cancelable: true,
+          userInterfaceStyle: 'light'
+        }
+      );
+    } else if (level.day <= currentDay + 1) {
+      // Prompt to add expenses for incomplete level
+      setSelectedLevel(level);
+      setShowAddExpenseModal(true);
+    } else {
+      // Level is locked with improved messaging
+      Alert.alert(
+        '🔒 Day Locked',
+        `Complete Day ${level.day - 1} first to unlock this milestone.\n\nKeep building your financial tracking streak! 💪`,
+        [{ 
+          text: 'Got it!', 
+          style: 'default' 
+        }],
+        { 
+          cancelable: true,
+          userInterfaceStyle: 'light'
+        }
+      );
+    }
   };
+
+  const handleAddExpense = (transactionData: any) => {
+    if (selectedLevel) {
+      // Mark the day as completed
+      setCompletedDays(prev => new Set([...prev, selectedLevel.day]));
+      
+      // Update streak if it's the current day
+      if (selectedLevel.day === currentDay + 1) {
+        setCurrentStreak(prev => prev + 1);
+      }
+
+      Alert.alert(
+        '🎉 Day Completed!', 
+        `Amazing! Day ${selectedLevel.day} is now complete!\n\n🔥 Current Streak: ${currentStreak + 1} days\n\n🚀 Keep up the great work!`,
+        [{ 
+          text: 'Continue Journey!', 
+          style: 'default' 
+        }],
+        { 
+          cancelable: true,
+          userInterfaceStyle: 'light'
+        }
+      );
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Memoized render function for performance
+  const renderLevel = useMemo(() => {
+    return (level: Level, index: number) => {
+      const isUnlocked = level.day <= currentDay + 1;
+      const isActive = level.day === currentDay + 1;
+      const isCompleted = level.completed;
+      const isCurrent = level.day === currentDay;
+
+      const getLevelColors = () => {
+        if (isCompleted) return COLORS.emeraldGreen;
+        if (isActive) return COLORS.darkGrey;
+        if (isUnlocked) return COLORS.grey;
+        return COLORS.grey;
+      };
+
+      return (
+        <View key={level.id} style={styles.levelContainer}>
+          {/* Continuous straight path line through center */}
+          <View style={styles.centerPath} />
+          
+          {/* Connecting line to next level */}
+          {index < levels.length - 1 && (
+            <View style={[
+              styles.connectionLine,
+              { backgroundColor: isCompleted ? COLORS.emeraldGreen : COLORS.grey }
+            ]} />
+          )}
+          
+          {/* Level Node - centered perfect circle */}
+          <TouchableOpacity 
+            style={[styles.levelNode, !isUnlocked && styles.lockedNode]}
+            onPress={() => handleLevelPress(level)}
+            disabled={!isUnlocked}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.levelNodeBase, { borderColor: isCompleted ? COLORS.emeraldGreen : (isUnlocked ? COLORS.black : COLORS.grey) }]}>
+              <View style={[styles.levelNodeInner, { backgroundColor: getLevelColors() }]}>
+                {!isUnlocked ? (
+                  <Lock size={20} color="#ffffff" />
+                ) : (
+                  <Text style={[styles.levelNumberText, { color: COLORS.white }]}>{level.day}</Text>
+                )}
+                
+                {/* Character Avatar on Current Day */}
+                {isCurrent && (
+                  <View style={styles.characterAvatar}>
+                    <Image
+                      source={require('../../assets/images/sage.jpeg')}
+                      style={styles.sageImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                )}
+              </View>
+            </View>
+          </TouchableOpacity>
+          
+          {/* Level and Date Labels below circle */}
+          <View style={styles.labelContainer}>
+            <Text style={[styles.levelLabel, { color: isCompleted ? COLORS.emeraldGreen : COLORS.darkGrey }]}>
+              Level {level.day}
+            </Text>
+            <Text style={[styles.dayLabel, { color: isCompleted ? COLORS.emeraldGreen : COLORS.darkGrey }]}>
+              {level.date.toLocaleDateString('en-IN', { 
+                day: '2-digit', 
+                month: 'short' 
+              })}
+            </Text>
+          </View>
+        </View>
+      );
+    };
+  }, [levels, currentDay, currentStreak]);
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#1a202c', '#2d3748', '#4a5568']}
-        style={styles.backgroundGradient}
-      >
+      <View style={styles.backgroundGradient}>
         {/* Header */}
         <View style={styles.header}>
-          <LinearGradient
-            colors={['#d69e2e', '#b7791f']}
-            style={styles.headerBadge}
-          >
-            <Crown size={20} color="#1a202c" />
-            <Text style={styles.headerText}>Financial Path</Text>
-          </LinearGradient>
-          <Text style={styles.subtitleText}>Your Journey to Wealth</Text>
+          <View style={styles.headerLeft}>
+            <Image 
+              source={require('../../assets/images/ruppe.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.headerTitle}>JOURNEY MAP</Text>
+          </View>
+          <View style={styles.streakContainer}>
+            <Flame size={20} color={COLORS.crimsonRed} />
+            <Text style={styles.streakText}>{currentStreak}</Text>
+          </View>
         </View>
 
-        {/* Scrollable Path */}
-        <ScrollView 
-          style={styles.pathScrollView} 
-          showsVerticalScrollIndicator={false}
+
+        {/* Scrollable Path - starts from bottom, scrolls up */}
+        <FlatList
+          data={levels}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item, index }) => renderLevel(item, index)}
+          style={styles.pathScrollView}
           contentContainerStyle={styles.pathContent}
+          showsVerticalScrollIndicator={false}
+          initialScrollIndex={Math.max(0, levels.length - 3)} // Start near bottom
+          getItemLayout={(data, index) => ({
+            length: 140, // Fixed item height for better performance
+            offset: 140 * index,
+            index,
+          })}
+          removeClippedSubviews={false} // Disable for smoother scroll
+          maxToRenderPerBatch={8}
+          windowSize={8}
+          scrollEventThrottle={16} // Smooth scroll
+          decelerationRate="normal"
+        />
+
+        {/* Quest Popup Button */}
+        <TouchableOpacity 
+          style={styles.questButton}
+          onPress={() => setShowQuestPopup(true)}
         >
-          <View style={styles.pathContainer}>
-            {pathLevels.map((level, index) => renderPathLevel(level, index))}
+          <Target size={24} color="#ffffff" />
+          <Text style={styles.questButtonText}>QUESTS</Text>
+        </TouchableOpacity>
+
+        {/* Quest Popup Modal */}
+        {showQuestPopup && (
+          <View style={styles.questPopup}>
+            <View style={styles.questPopupContent}>
+              <View style={styles.questPopupHeader}>
+                <Text style={styles.questPopupTitle}>LONG-TERM QUESTS</Text>
+                <TouchableOpacity onPress={() => setShowQuestPopup(false)}>
+                  <Text style={styles.closeButton}>✕</Text>
+                </TouchableOpacity>
+              </View>
+              <FlatList
+                data={longTermQuests}
+                keyExtractor={(item) => item.id.toString()}
+                style={styles.questsList}
+                renderItem={({ item: quest }) => (
+                  <View style={styles.questItem}>
+                    <View style={styles.questHeader}>
+                      <Text style={styles.questIcon}>{quest.icon}</Text>
+                      <View style={styles.questInfo}>
+                        <Text style={styles.questTitle}>{quest.title}</Text>
+                        <Text style={styles.questDescription}>{quest.description}</Text>
+                      </View>
+                      <Text style={[styles.questDifficulty, { color: quest.difficulty === 'Legendary' ? COLORS.crimsonRed : COLORS.emeraldGreen }]}>
+                        {quest.difficulty}
+                      </Text>
+                    </View>
+                    <View style={styles.questProgress}>
+                      <Text style={styles.questProgressText}>
+                        {formatCurrency(quest.current)} / {formatCurrency(quest.target)}
+                      </Text>
+                      <View style={styles.questProgressBar}>
+                        <View 
+                          style={[styles.questProgressFill, { width: `${quest.progress}%`, backgroundColor: COLORS.emeraldGreen }]}
+                        />
+                      </View>
+                      <Text style={styles.questReward}>Reward: {quest.reward} XP</Text>
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
           </View>
-          
-          {/* Bottom Padding */}
-          <View style={styles.bottomPadding} />
-        </ScrollView>
-      </LinearGradient>
+        )}
+      </View>
+
+      <AddTransactionModal
+        visible={showAddExpenseModal}
+        onClose={() => {
+          setShowAddExpenseModal(false);
+          setSelectedLevel(null);
+        }}
+        onAddTransaction={handleAddExpense}
+      />
     </View>
   );
 }
@@ -155,42 +371,63 @@ export default function QuestMap() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.lightGrey,
   },
   backgroundGradient: {
     flex: 1,
+    backgroundColor: COLORS.lightGrey,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
+    backgroundColor: COLORS.lightGrey,
   },
-  headerBadge: {
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
-  headerText: {
-    fontSize: 18,
-    fontFamily: 'Orbitron_700Bold',
-    color: '#1a202c',
-    marginLeft: 8,
+  logo: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
   },
-  subtitleText: {
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: 'Minecraftia',
+    color: COLORS.black,
+    letterSpacing: 4,
+    textTransform: 'uppercase',
+    textShadowColor: COLORS.grey,
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  streakContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.black,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#333333',
+  },
+  streakText: {
     fontSize: 14,
-    color: '#a0aec0',
-    fontFamily: 'Orbitron_400Regular',
+    fontFamily: 'Minecraftia',
+    color: '#ffffff',
+    marginLeft: 6,
+    letterSpacing: 2,
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   pathScrollView: {
     flex: 1,
+    paddingHorizontal: 10,
   },
   pathContent: {
     paddingBottom: 100,
@@ -200,112 +437,395 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   levelContainer: {
-    width: width * 0.4,
     marginBottom: 40,
     position: 'relative',
+    width: '100%',
+    height: 140,
+    alignItems: 'center',
   },
-  pathLine: {
+  centerPath: {
     position: 'absolute',
-    top: -20,
     left: '50%',
-    width: 4,
-    height: 40,
-    marginLeft: -2,
+    top: 0,
+    bottom: 0,
+    width: 6,
+    backgroundColor: '#e5e7eb',
+    marginLeft: -3,
     zIndex: 0,
+    borderRadius: 3,
   },
-  pathLineGradient: {
-    flex: 1,
-    borderRadius: 2,
+  connectionLine: {
+    position: 'absolute',
+    left: '50%',
+    top: 70,
+    width: 6,
+    height: 60,
+    marginLeft: -3,
+    zIndex: 1,
+    borderRadius: 3,
   },
   levelNode: {
-    alignSelf: 'center',
-    marginBottom: 10,
-    zIndex: 2,
+    position: 'absolute',
+    left: '50%',
+    top: 15,
+    marginLeft: -30, // Half of node width (60px)
+    zIndex: 3,
   },
-  levelNodeGradient: {
+  levelNodeBase: {
     width: 60,
     height: 60,
-    borderRadius: 30,
+    borderRadius: 30, // Perfect circle - radius = width/2
+    borderWidth: 3,
+    padding: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    backgroundColor: '#fff', // Ensure clean background
+  },
+  levelNodeInner: {
+    flex: 1,
+    borderRadius: 27, // Inner circle - (width-padding*2-border*2)/2
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: '#2d3748',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
     position: 'relative',
   },
   lockedNode: {
     opacity: 0.5,
   },
-  levelIcon: {
-    fontSize: 28,
-    textAlign: 'center',
+  levelDayText: {
+    fontSize: 16,
+    fontFamily: 'Minecraftia',
+    color: '#ffffff',
+    letterSpacing: 1,
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
-  completedBadge: {
+  levelNumberText: {
+    fontSize: 18,
+    fontFamily: 'Minecraftia',
+    color: '#ffffff',
+    letterSpacing: 1,
+    fontWeight: 'bold',
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  labelContainer: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
+    top: 85,
+    left: '50%',
+    marginLeft: -40, // Center the container
+    width: 80,
+    alignItems: 'center',
+  },
+  levelLabel: {
+    fontSize: 9,
+    fontFamily: 'Minecraftia',
+    letterSpacing: 1,
+    textAlign: 'center',
+    textShadowColor: '#ffffff',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+    marginBottom: 2,
+  },
+  dayLabel: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    letterSpacing: 1,
+    textAlign: 'center',
+    textShadowColor: '#ffffff',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  characterAvatar: {
+    position: 'absolute',
+    top: -8, // Move avatar to top instead of bottom
+    right: -8,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#ffffff',
+    overflow: 'hidden',
+  },
+  sageImage: {
+    width: '100%',
+    height: '100%',
   },
   levelInfoCard: {
+    backgroundColor: '#ffffff',
     borderRadius: 12,
-    overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#4a5568',
+    borderColor: '#cccccc',
+    overflow: 'hidden',
+    width: width * 0.6,
+    position: 'absolute',
+    top: 100,
+    left: '50%',
+    marginLeft: -(width * 0.3),
+    zIndex: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
   },
   lockedCard: {
     opacity: 0.6,
   },
-  levelInfoGradient: {
+  levelInfoContent: {
     padding: 12,
     alignItems: 'center',
   },
-  levelDay: {
-    fontSize: 10,
-    fontFamily: 'Orbitron_400Regular',
-    color: '#a0aec0',
-    marginBottom: 4,
-  },
   levelTitle: {
-    fontSize: 14,
-    fontFamily: 'Orbitron_700Bold',
-    color: '#ffffff',
+    fontSize: 12,
+    fontFamily: 'Minecraftia',
+    color: COLORS.black,
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 4,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
-  levelReward: {
+  levelDate: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    color: COLORS.grey,
+    marginBottom: 4,
+    letterSpacing: 1,
+    textShadowColor: '#dddddd',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  expenseAmount: {
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    color: COLORS.crimsonRed,
+    marginBottom: 4,
+    letterSpacing: 1,
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  levelStatus: {
+    marginTop: 4,
+  },
+  levelNumber: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    color: COLORS.purple,
+    textAlign: 'center',
+    marginBottom: 2,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  completedText: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    color: COLORS.emeraldGreen,
+    textAlign: 'center',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  activeText: {
+    fontSize: 7,
+    fontFamily: 'Minecraftia',
+    color: '#3182ce',
+    textAlign: 'center',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  unlockedText: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    color: COLORS.grey,
+    textAlign: 'center',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    textShadowColor: '#dddddd',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  lockedText: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    color: '#9ca3af',
+    textAlign: 'center',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    textShadowColor: '#dddddd',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  questButton: {
+    position: 'absolute',
+    top: 120,
+    right: 20,
+    backgroundColor: COLORS.black,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 2,
+    borderColor: '#333333',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    zIndex: 10,
   },
-  rewardText: {
+  questButtonText: {
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    color: '#ffffff',
+    marginLeft: 6,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  questPopup: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  questPopupContent: {
+    backgroundColor: COLORS.lightGrey,
+    borderRadius: 12,
+    padding: 20,
+    width: width * 0.9,
+    maxHeight: height * 0.7,
+    borderWidth: 2,
+    borderColor: COLORS.black,
+  },
+  questPopupHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  questPopupTitle: {
+    fontSize: 14,
+    fontFamily: 'Minecraftia',
+    color: COLORS.black,
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  closeButton: {
+    fontSize: 20,
+    fontFamily: 'Minecraftia',
+    color: COLORS.black,
+    padding: 5,
+  },
+  questsList: {
+    maxHeight: height * 0.5,
+  },
+  questItem: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#cccccc',
+  },
+  questHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  questIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  questInfo: {
+    flex: 1,
+  },
+  questTitle: {
     fontSize: 12,
-    fontFamily: 'Orbitron_400Regular',
-    color: '#d69e2e',
-    marginLeft: 4,
+    fontFamily: 'Minecraftia',
+    color: COLORS.black,
+    marginBottom: 2,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
-  levelType: {
+  questDescription: {
     fontSize: 8,
-    fontFamily: 'Orbitron_700Bold',
-    color: '#718096',
-    textAlign: 'center',
+    fontFamily: 'Minecraftia',
+    color: COLORS.grey,
+    letterSpacing: 1,
+    textShadowColor: '#dddddd',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
-  bottomPadding: {
-    height: 50,
+  questDifficulty: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  questProgress: {
+    marginTop: 8,
+  },
+  questProgressText: {
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    color: COLORS.black,
+    marginBottom: 6,
+    letterSpacing: 1,
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  questProgressBar: {
+    height: 8,
+    backgroundColor: '#dddddd',
+    borderRadius: 4,
+    marginBottom: 6,
+  },
+  questProgressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  questReward: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    color: COLORS.grey,
+    letterSpacing: 1,
+    textShadowColor: '#dddddd',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
 });
