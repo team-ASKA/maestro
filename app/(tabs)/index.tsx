@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Upload, TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3, FileText, Plus, Wallet, CreditCard, Home as HomeIcon } from 'lucide-react-native';
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
@@ -91,7 +91,12 @@ export default function FinanceHome() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.headerTitle}>FINANCE</Text>
+            <Image 
+              source={require('../../assets/images/ruppe.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.headerTitle}>MAESTRO</Text>
           </View>
           <TouchableOpacity 
             style={styles.uploadButton}
@@ -220,11 +225,11 @@ export default function FinanceHome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#f5f5f5',
   },
   backgroundGradient: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#f5f5f5',
   },
   header: {
     flexDirection: 'row',
@@ -233,39 +238,47 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: '#000000',
+    backgroundColor: '#f5f5f5',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  logo: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+  },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
-    letterSpacing: 2,
+    color: '#000000',
+    letterSpacing: 4,
+    textTransform: 'uppercase',
   },
   uploadButton: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
   uploadButtonText: {
-    color: '#000000',
-    fontSize: 12,
+    color: '#ffffff',
+    fontSize: 10,
     fontFamily: 'Inter_700Bold',
-    letterSpacing: 1,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   scrollView: {
     flex: 1,
     paddingHorizontal: 20,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    color: '#000000',
     marginBottom: 15,
-    letterSpacing: 1,
+    letterSpacing: 3,
+    textTransform: 'uppercase',
   },
   // Quick Actions
   quickActionsSection: {
@@ -279,17 +292,18 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: '48%',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     padding: 20,
     alignItems: 'center',
     marginBottom: 15,
   },
   actionText: {
-    fontSize: 10,
+    fontSize: 8,
     fontFamily: 'Inter_700Bold',
-    color: '#000000',
+    color: '#ffffff',
     textAlign: 'center',
-    letterSpacing: 1,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   // Overview Cards
   overviewSection: {
@@ -302,31 +316,32 @@ const styles = StyleSheet.create({
   },
   overviewCard: {
     flex: 0.48,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     padding: 20,
     alignItems: 'center',
   },
   cardValue: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
-    color: '#000000',
-    textAlign: 'center',
-    letterSpacing: 0.5,
-  },
-  cardLabel: {
-    fontSize: 8,
-    fontFamily: 'Inter_700Bold',
-    color: '#666666',
-    marginTop: 8,
+    color: '#ffffff',
     textAlign: 'center',
     letterSpacing: 1,
+  },
+  cardLabel: {
+    fontSize: 6,
+    fontFamily: 'Inter_700Bold',
+    color: '#cccccc',
+    marginTop: 8,
+    textAlign: 'center',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   // Net Income Section
   netIncomeSection: {
     marginBottom: 30,
   },
   netIncomeCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     padding: 20,
   },
   netIncomeHeader: {
@@ -336,30 +351,31 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   netIncomeTitle: {
-    fontSize: 12,
+    fontSize: 10,
     fontFamily: 'Inter_700Bold',
-    color: '#000000',
-    letterSpacing: 1,
+    color: '#ffffff',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   changePercentage: {
-    fontSize: 12,
+    fontSize: 10,
     fontFamily: 'Inter_700Bold',
-    color: '#000000',
-    letterSpacing: 1,
+    color: '#ffffff',
+    letterSpacing: 2,
   },
   netIncomeValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'Inter_700Bold',
-    color: '#000000',
+    color: '#ffffff',
     textAlign: 'center',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   // Spending Section
   spendingSection: {
     marginBottom: 30,
   },
   spendingCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     padding: 20,
   },
   categoryRow: {
@@ -371,42 +387,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryName: {
-    fontSize: 12,
-    fontFamily: 'Inter_700Bold',
-    color: '#000000',
-    letterSpacing: 1,
-  },
-  categoryAmount: {
     fontSize: 10,
     fontFamily: 'Inter_700Bold',
-    color: '#666666',
+    color: '#ffffff',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  categoryAmount: {
+    fontSize: 8,
+    fontFamily: 'Inter_700Bold',
+    color: '#cccccc',
     marginTop: 2,
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   progressBarContainer: {
     flex: 1,
     height: 8,
-    backgroundColor: '#000000',
+    backgroundColor: '#ffffff',
     marginHorizontal: 15,
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
   },
   categoryPercentage: {
-    fontSize: 10,
+    fontSize: 8,
     fontFamily: 'Inter_700Bold',
-    color: '#000000',
+    color: '#ffffff',
     minWidth: 35,
     textAlign: 'right',
-    letterSpacing: 1,
+    letterSpacing: 2,
   },
   // Transactions Section
   transactionsSection: {
     marginBottom: 30,
   },
   transactionsCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     padding: 20,
   },
   transactionRow: {
@@ -419,32 +436,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   transactionName: {
-    fontSize: 12,
-    fontFamily: 'Inter_700Bold',
-    color: '#000000',
-    letterSpacing: 1,
-  },
-  transactionCategory: {
     fontSize: 10,
     fontFamily: 'Inter_700Bold',
-    color: '#666666',
+    color: '#ffffff',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  transactionCategory: {
+    fontSize: 8,
+    fontFamily: 'Inter_700Bold',
+    color: '#cccccc',
     marginTop: 2,
-    letterSpacing: 1,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   transactionAmount: {
     alignItems: 'flex-end',
   },
   transactionValue: {
-    fontSize: 12,
+    fontSize: 10,
     fontFamily: 'Inter_700Bold',
-    color: '#000000',
-    letterSpacing: 0.5,
+    color: '#ffffff',
+    letterSpacing: 1,
   },
   transactionDate: {
-    fontSize: 8,
+    fontSize: 6,
     fontFamily: 'Inter_700Bold',
-    color: '#666666',
+    color: '#cccccc',
     marginTop: 2,
-    letterSpacing: 1,
+    letterSpacing: 2,
   },
 });
