@@ -7,6 +7,14 @@ import * as DocumentPicker from 'expo-document-picker';
 
 const { width, height } = Dimensions.get('window');
 
+// Color constants
+const COLORS = {
+  emeraldGreen: '#10B981', // For income/positive values
+  crimsonRed: '#DC2626',   // For expenses/negative values
+  black: '#000000',        // For neutral text
+  grey: '#666666',         // For secondary text
+};
+
 export default function FinanceHome() {
   const [fontsLoaded] = useFonts({
     'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
@@ -110,21 +118,48 @@ export default function FinanceHome() {
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Quick Actions */}
           <View style={styles.quickActionsSection}>
-            <Text style={styles.sectionTitle}>ACTIONS</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>ACTIONS</Text>
+              <Image
+                source={require('../../assets/images/divider.jpeg')}
+                style={styles.dividerImage}
+                resizeMode="stretch"
+              />
+            </View>
             <View style={styles.actionGrid}>
               <TouchableOpacity style={styles.actionCard}>
+                <Image
+                  source={require('../../assets/images/add_transction.jpeg')}
+                  style={styles.actionImage}
+                  resizeMode="cover"
+                />
                 <Text style={styles.actionText}>ADD TRANSACTION</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
+                <Image
+                  source={require('../../assets/images/view_reports.jpeg')}
+                  style={styles.actionImage}
+                  resizeMode="cover"
+                />
                 <Text style={styles.actionText}>VIEW REPORTS</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
+                <Image
+                  source={require('../../assets/images/setBudget.jpeg')}
+                  style={styles.actionImage}
+                  resizeMode="cover"
+                />
                 <Text style={styles.actionText}>SET BUDGET</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
+                <Image
+                  source={require('../../assets/images/ExportData.jpeg')}
+                  style={styles.actionImage}
+                  resizeMode="cover"
+                />
                 <Text style={styles.actionText}>EXPORT DATA</Text>
               </TouchableOpacity>
             </View>
@@ -132,27 +167,34 @@ export default function FinanceHome() {
 
           {/* Overview Cards */}
           <View style={styles.overviewSection}>
-            <Text style={styles.sectionTitle}>OVERVIEW</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>OVERVIEW</Text>
+              <Image
+                source={require('../../assets/images/divider.jpeg')}
+                style={styles.dividerImage}
+                resizeMode="stretch"
+              />
+            </View>
             <View style={styles.cardRow}>
               <View style={styles.overviewCard}>
-                <Text style={styles.cardValue}>{formatCurrency(financialData.totalBalance)}</Text>
+                <Text style={[styles.cardValue, styles.incomeColor]}>{formatCurrency(financialData.totalBalance)}</Text>
                 <Text style={styles.cardLabel}>TOTAL BALANCE</Text>
               </View>
               
               <View style={styles.overviewCard}>
-                <Text style={styles.cardValue}>{formatCurrency(financialData.netWorth)}</Text>
+                <Text style={[styles.cardValue, styles.incomeColor]}>{formatCurrency(financialData.netWorth)}</Text>
                 <Text style={styles.cardLabel}>NET WORTH</Text>
               </View>
             </View>
 
             <View style={styles.cardRow}>
               <View style={styles.overviewCard}>
-                <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyIncome)}</Text>
+                <Text style={[styles.cardValue, styles.incomeColor]}>{formatCurrency(financialData.monthlyIncome)}</Text>
                 <Text style={styles.cardLabel}>MONTHLY INCOME</Text>
               </View>
               
               <View style={styles.overviewCard}>
-                <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyExpenses)}</Text>
+                <Text style={[styles.cardValue, styles.expenseColor]}>{formatCurrency(financialData.monthlyExpenses)}</Text>
                 <Text style={styles.cardLabel}>MONTHLY EXPENSES</Text>
               </View>
             </View>
@@ -160,13 +202,20 @@ export default function FinanceHome() {
 
           {/* Net Income */}
           <View style={styles.netIncomeSection}>
-            <Text style={styles.sectionTitle}>NET INCOME</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>NET INCOME</Text>
+              <Image
+                source={require('../../assets/images/divider.jpeg')}
+                style={styles.dividerImage}
+                resizeMode="stretch"
+              />
+            </View>
             <View style={styles.netIncomeCard}>
               <View style={styles.netIncomeHeader}>
                 <Text style={styles.netIncomeTitle}>MONTHLY NET INCOME</Text>
-                <Text style={styles.changePercentage}>+{getChangePercentage()}%</Text>
+                <Text style={[styles.changePercentage, styles.incomeColor]}>+{getChangePercentage()}%</Text>
               </View>
-              <Text style={styles.netIncomeValue}>
+              <Text style={[styles.netIncomeValue, styles.incomeColor]}>
                 {formatCurrency(financialData.monthlyIncome - financialData.monthlyExpenses)}
               </Text>
             </View>
@@ -174,13 +223,20 @@ export default function FinanceHome() {
 
           {/* Spending Breakdown */}
           <View style={styles.spendingSection}>
-            <Text style={styles.sectionTitle}>SPENDING BREAKDOWN</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>SPENDING BREAKDOWN</Text>
+              <Image
+                source={require('../../assets/images/divider.jpeg')}
+                style={styles.dividerImage}
+                resizeMode="stretch"
+              />
+            </View>
             <View style={styles.spendingCard}>
               {financialData.monthlySpendingByCategory.map((item, index) => (
                 <View key={index} style={styles.categoryRow}>
                   <View style={styles.categoryInfo}>
                     <Text style={styles.categoryName}>{item.category}</Text>
-                    <Text style={styles.categoryAmount}>{formatCurrency(item.amount)}</Text>
+                    <Text style={[styles.categoryAmount, styles.expenseColor]}>{formatCurrency(item.amount)}</Text>
                   </View>
                   <View style={styles.progressBarContainer}>
                     <View 
@@ -195,7 +251,14 @@ export default function FinanceHome() {
 
           {/* Recent Transactions */}
           <View style={styles.transactionsSection}>
-            <Text style={styles.sectionTitle}>RECENT TRANSACTIONS</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>RECENT TRANSACTIONS</Text>
+              <Image
+                source={require('../../assets/images/divider.jpeg')}
+                style={styles.dividerImage}
+                resizeMode="stretch"
+              />
+            </View>
             
             <View style={styles.transactionsCard}>
               {financialData.recentTransactions.slice(0, 5).map((transaction) => (
@@ -205,7 +268,7 @@ export default function FinanceHome() {
                     <Text style={styles.transactionCategory}>{transaction.category}</Text>
                   </View>
                   <View style={styles.transactionAmount}>
-                    <Text style={styles.transactionValue}>
+                    <Text style={[styles.transactionValue, transaction.type === 'income' ? styles.incomeColor : styles.expenseColor]}>
                       {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
                     </Text>
                     <Text style={styles.transactionDate}>{transaction.date}</Text>
@@ -279,20 +342,24 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
+  sectionHeader: {
+    marginBottom: 15,
+  },
   sectionTitle: {
     fontSize: 14,
     fontFamily: 'Minecraftia',
     color: '#000000',
-    marginBottom: 15,
-    paddingBottom: 8,
+    marginBottom: 8,
     letterSpacing: 3,
     textTransform: 'uppercase',
     textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
-    borderBottomWidth: 2,
-    borderBottomColor: '#000000',
-    borderStyle: 'dotted',
+  },
+  dividerImage: {
+    width: '30%',
+    height: 8,
+    alignSelf: 'center',
   },
   // Quick Actions
   quickActionsSection: {
@@ -307,8 +374,14 @@ const styles = StyleSheet.create({
   actionCard: {
     width: '48%',
     marginBottom: 15,
-    padding: 20,
+    padding: 15,
     alignItems: 'center',
+  },
+  actionImage: {
+    width: 60,
+    height: 60,
+    marginBottom: 10,
+    borderRadius: 8,
   },
   actionText: {
     fontSize: 10,
@@ -513,5 +586,12 @@ const styles = StyleSheet.create({
     textShadowColor: '#dddddd',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
+  },
+  // Color styles
+  incomeColor: {
+    color: COLORS.emeraldGreen,
+  },
+  expenseColor: {
+    color: COLORS.crimsonRed,
   },
 });
