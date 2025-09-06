@@ -358,8 +358,8 @@ const styles = StyleSheet.create({
   },
   dividerImage: {
     width: '30%',
-    height: 8,
-    alignSelf: 'center',
+    height: 24,
+    alignSelf: 'flex-start',
   },
   // Quick Actions
   quickActionsSection: {
