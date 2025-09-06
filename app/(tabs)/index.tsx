@@ -80,19 +80,6 @@ export default function FinanceHome() {
     return percentage;
   };
 
-  const getCategoryEmoji = (category) => {
-    const emojiMap = {
-      'Food': '🍔',
-      'Housing': '🏠',
-      'Transport': '🚗',
-      'Entertainment': '🎮',
-      'Utilities': '⚡',
-      'Other': '📦',
-      'Salary': '💼',
-      'Investment': '📈',
-    };
-    return emojiMap[category] || '💰';
-  };
 
   if (!fontsLoaded) {
     return null;
@@ -225,7 +212,7 @@ export default function FinanceHome() {
             </View>
           </View>
         </ScrollView>
-      </LinearGradient>
+      </View>
     </View>
   );
 }
@@ -233,9 +220,11 @@ export default function FinanceHome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000',
   },
   backgroundGradient: {
     flex: 1,
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -244,64 +233,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    borderBottomWidth: 3,
-    borderBottomColor: '#3b82f6',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#000000',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: 'Inter_700Bold',
-    color: '#1e293b',
-    marginLeft: 12,
+    color: '#ffffff',
+    letterSpacing: 2,
   },
   uploadButton: {
-    backgroundColor: '#3b82f6',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#1d4ed8',
   },
   uploadButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontFamily: 'Inter_600SemiBold',
-    marginLeft: 6,
+    color: '#000000',
+    fontSize: 12,
+    fontFamily: 'Inter_700Bold',
+    letterSpacing: 1,
   },
   scrollView: {
     flex: 1,
     paddingHorizontal: 20,
   },
-  // Pixel Art Section Headers
-  sectionHeaderWithPixel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 15,
-    backgroundColor: '#1e293b',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    borderWidth: 3,
-    borderColor: '#3b82f6',
-  },
-  pixelIcon: {
-    fontSize: 20,
-    marginHorizontal: 8,
-  },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Inter_700Bold',
     color: '#ffffff',
-    textAlign: 'center',
+    marginBottom: 15,
+    letterSpacing: 1,
   },
-  // Quick Actions (moved to top)
+  // Quick Actions
   quickActionsSection: {
     marginTop: 20,
     marginBottom: 30,
@@ -314,34 +280,16 @@ const styles = StyleSheet.create({
   actionCard: {
     width: '48%',
     backgroundColor: '#ffffff',
-    borderRadius: 8,
-    padding: 15,
+    padding: 20,
     alignItems: 'center',
     marginBottom: 15,
-    borderWidth: 3,
-    borderColor: '#3b82f6',
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 6,
-  },
-  pixelIconContainer: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 6,
-    padding: 8,
-    borderWidth: 2,
-    borderColor: '#3b82f6',
-    marginBottom: 8,
-  },
-  pixelActionIcon: {
-    fontSize: 24,
   },
   actionText: {
-    fontSize: 12,
-    fontFamily: 'Inter_600SemiBold',
-    color: '#1e293b',
+    fontSize: 10,
+    fontFamily: 'Inter_700Bold',
+    color: '#000000',
     textAlign: 'center',
+    letterSpacing: 1,
   },
   // Overview Cards
   overviewSection: {
@@ -354,106 +302,57 @@ const styles = StyleSheet.create({
   },
   overviewCard: {
     flex: 0.48,
-    borderRadius: 8,
-    overflow: 'hidden',
-    borderWidth: 3,
-    borderColor: '#1e293b',
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  cardGradient: {
-    padding: 15,
-  },
-  cardPixelBorder: {
+    backgroundColor: '#ffffff',
+    padding: 20,
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    borderStyle: 'dashed',
-    borderRadius: 4,
-    padding: 10,
-  },
-  cardPixelIcon: {
-    fontSize: 24,
-    marginBottom: 8,
   },
   cardValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
-    marginTop: 8,
+    color: '#000000',
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   cardLabel: {
-    fontSize: 11,
-    fontFamily: 'Inter_600SemiBold',
-    color: '#ffffff',
-    marginTop: 4,
-    opacity: 0.9,
+    fontSize: 8,
+    fontFamily: 'Inter_700Bold',
+    color: '#666666',
+    marginTop: 8,
     textAlign: 'center',
+    letterSpacing: 1,
   },
   // Net Income Section
   netIncomeSection: {
     marginBottom: 30,
   },
   netIncomeCard: {
-    borderRadius: 8,
-    overflow: 'hidden',
-    borderWidth: 3,
-    borderColor: '#1e293b',
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  netIncomeGradient: {
+    backgroundColor: '#ffffff',
     padding: 20,
-  },
-  pixelBorderWrapper: {
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    borderStyle: 'dashed',
-    borderRadius: 6,
-    padding: 15,
   },
   netIncomeHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 15,
   },
   netIncomeTitle: {
-    fontSize: 16,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
-  },
-  changeIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-  },
-  pixelPlus: {
-    fontSize: 14,
-    marginRight: 4,
+    color: '#000000',
+    letterSpacing: 1,
   },
   changePercentage: {
     fontSize: 12,
     fontFamily: 'Inter_700Bold',
-    color: '#10b981',
+    color: '#000000',
+    letterSpacing: 1,
   },
   netIncomeValue: {
-    fontSize: 24,
+    fontSize: 18,
     fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    color: '#000000',
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   // Spending Section
   spendingSection: {
@@ -461,59 +360,46 @@ const styles = StyleSheet.create({
   },
   spendingCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 8,
     padding: 20,
-    borderWidth: 3,
-    borderColor: '#3b82f6',
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 6,
   },
   categoryRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
-    paddingBottom: 10,
-    borderBottomWidth: 2,
-    borderBottomColor: '#f1f5f9',
-    borderStyle: 'dashed',
   },
   categoryInfo: {
     flex: 1,
   },
   categoryName: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
-    color: '#1e293b',
+    color: '#000000',
+    letterSpacing: 1,
   },
   categoryAmount: {
-    fontSize: 12,
-    fontFamily: 'Inter_600SemiBold',
-    color: '#64748b',
+    fontSize: 10,
+    fontFamily: 'Inter_700Bold',
+    color: '#666666',
     marginTop: 2,
+    letterSpacing: 0.5,
   },
   progressBarContainer: {
     flex: 1,
-    height: 10,
-    backgroundColor: '#e2e8f0',
-    borderRadius: 2,
+    height: 8,
+    backgroundColor: '#000000',
     marginHorizontal: 15,
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#3b82f6',
-    borderRadius: 1,
+    backgroundColor: '#ffffff',
   },
   categoryPercentage: {
-    fontSize: 12,
+    fontSize: 10,
     fontFamily: 'Inter_700Bold',
-    color: '#3b82f6',
+    color: '#000000',
     minWidth: 35,
     textAlign: 'right',
+    letterSpacing: 1,
   },
   // Transactions Section
   transactionsSection: {
@@ -521,64 +407,44 @@ const styles = StyleSheet.create({
   },
   transactionsCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 8,
     padding: 20,
-    borderWidth: 3,
-    borderColor: '#3b82f6',
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 6,
   },
   transactionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
     paddingBottom: 15,
-    borderBottomWidth: 2,
-    borderBottomColor: '#f1f5f9',
-    borderStyle: 'dashed',
-  },
-  transactionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 6,
-    backgroundColor: '#f1f5f9',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    borderWidth: 2,
-    borderColor: '#3b82f6',
-  },
-  transactionEmoji: {
-    fontSize: 20,
   },
   transactionInfo: {
     flex: 1,
   },
   transactionName: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
-    color: '#1e293b',
+    color: '#000000',
+    letterSpacing: 1,
   },
   transactionCategory: {
-    fontSize: 12,
-    fontFamily: 'Inter_600SemiBold',
-    color: '#64748b',
+    fontSize: 10,
+    fontFamily: 'Inter_700Bold',
+    color: '#666666',
     marginTop: 2,
+    letterSpacing: 1,
   },
   transactionAmount: {
     alignItems: 'flex-end',
   },
   transactionValue: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Inter_700Bold',
+    color: '#000000',
+    letterSpacing: 0.5,
   },
   transactionDate: {
-    fontSize: 11,
-    fontFamily: 'Inter_400Regular',
-    color: '#64748b',
+    fontSize: 8,
+    fontFamily: 'Inter_700Bold',
+    color: '#666666',
     marginTop: 2,
+    letterSpacing: 1,
   },
 });
