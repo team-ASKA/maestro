@@ -100,173 +100,96 @@ export default function FinanceHome() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#f8fafc', '#e2e8f0', '#cbd5e1']}
-        style={styles.backgroundGradient}
-      >
+      <View style={styles.backgroundGradient}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <HomeIcon size={24} color="#1e293b" />
-            <Text style={styles.headerTitle}>Finance Dashboard</Text>
+            <Text style={styles.headerTitle}>FINANCE</Text>
           </View>
           <TouchableOpacity 
             style={styles.uploadButton}
             onPress={handleDocumentUpload}
             disabled={uploading}
           >
-            <Upload size={20} color="#ffffff" />
             <Text style={styles.uploadButtonText}>
-              {uploading ? 'Processing...' : 'Upload'}
+              {uploading ? 'PROCESSING' : 'UPLOAD'}
             </Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          {/* Quick Actions - Moved to Top */}
+          {/* Quick Actions */}
           <View style={styles.quickActionsSection}>
-            <View style={styles.sectionHeaderWithPixel}>
-              <Text style={styles.pixelIcon}>⚡</Text>
-              <Text style={styles.sectionTitle}>Quick Actions</Text>
-              <Text style={styles.pixelIcon}>⚡</Text>
-            </View>
+            <Text style={styles.sectionTitle}>ACTIONS</Text>
             <View style={styles.actionGrid}>
               <TouchableOpacity style={styles.actionCard}>
-                <View style={styles.pixelIconContainer}>
-                  <Text style={styles.pixelActionIcon}>💰</Text>
-                </View>
-                <Text style={styles.actionText}>Add Money</Text>
+                <Text style={styles.actionText}>ADD TRANSACTION</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
-                <View style={styles.pixelIconContainer}>
-                  <Text style={styles.pixelActionIcon}>📊</Text>
-                </View>
-                <Text style={styles.actionText}>View Reports</Text>
+                <Text style={styles.actionText}>VIEW REPORTS</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
-                <View style={styles.pixelIconContainer}>
-                  <Text style={styles.pixelActionIcon}>🎯</Text>
-                </View>
-                <Text style={styles.actionText}>Budget Goals</Text>
+                <Text style={styles.actionText}>SET BUDGET</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
-                <View style={styles.pixelIconContainer}>
-                  <Text style={styles.pixelActionIcon}>📋</Text>
-                </View>
-                <Text style={styles.actionText}>Export Data</Text>
+                <Text style={styles.actionText}>EXPORT DATA</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Overview Cards */}
           <View style={styles.overviewSection}>
-            <View style={styles.sectionHeaderWithPixel}>
-              <Text style={styles.pixelIcon}>🏆</Text>
-              <Text style={styles.sectionTitle}>Financial Stats</Text>
-              <Text style={styles.pixelIcon}>🏆</Text>
-            </View>
+            <Text style={styles.sectionTitle}>OVERVIEW</Text>
             <View style={styles.cardRow}>
               <View style={styles.overviewCard}>
-                <LinearGradient
-                  colors={['#3b82f6', '#1d4ed8']}
-                  style={styles.cardGradient}
-                >
-                  <View style={styles.cardPixelBorder}>
-                    <Text style={styles.cardPixelIcon}>💳</Text>
-                    <Text style={styles.cardValue}>{formatCurrency(financialData.totalBalance)}</Text>
-                    <Text style={styles.cardLabel}>Total Balance</Text>
-                  </View>
-                </LinearGradient>
+                <Text style={styles.cardValue}>{formatCurrency(financialData.totalBalance)}</Text>
+                <Text style={styles.cardLabel}>TOTAL BALANCE</Text>
               </View>
               
               <View style={styles.overviewCard}>
-                <LinearGradient
-                  colors={['#10b981', '#059669']}
-                  style={styles.cardGradient}
-                >
-                  <View style={styles.cardPixelBorder}>
-                    <Text style={styles.cardPixelIcon}>💎</Text>
-                    <Text style={styles.cardValue}>{formatCurrency(financialData.netWorth)}</Text>
-                    <Text style={styles.cardLabel}>Net Worth</Text>
-                  </View>
-                </LinearGradient>
+                <Text style={styles.cardValue}>{formatCurrency(financialData.netWorth)}</Text>
+                <Text style={styles.cardLabel}>NET WORTH</Text>
               </View>
             </View>
 
             <View style={styles.cardRow}>
               <View style={styles.overviewCard}>
-                <LinearGradient
-                  colors={['#22c55e', '#16a34a']}
-                  style={styles.cardGradient}
-                >
-                  <View style={styles.cardPixelBorder}>
-                    <Text style={styles.cardPixelIcon}>📈</Text>
-                    <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyIncome)}</Text>
-                    <Text style={styles.cardLabel}>Monthly Income</Text>
-                  </View>
-                </LinearGradient>
+                <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyIncome)}</Text>
+                <Text style={styles.cardLabel}>MONTHLY INCOME</Text>
               </View>
               
               <View style={styles.overviewCard}>
-                <LinearGradient
-                  colors={['#ef4444', '#dc2626']}
-                  style={styles.cardGradient}
-                >
-                  <View style={styles.cardPixelBorder}>
-                    <Text style={styles.cardPixelIcon}>💸</Text>
-                    <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyExpenses)}</Text>
-                    <Text style={styles.cardLabel}>Monthly Expenses</Text>
-                  </View>
-                </LinearGradient>
+                <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyExpenses)}</Text>
+                <Text style={styles.cardLabel}>MONTHLY EXPENSES</Text>
               </View>
             </View>
           </View>
 
-          {/* Net Income Card */}
+          {/* Net Income */}
           <View style={styles.netIncomeSection}>
-            <View style={styles.sectionHeaderWithPixel}>
-              <Text style={styles.pixelIcon}>🎮</Text>
-              <Text style={styles.sectionTitle}>Power Level</Text>
-              <Text style={styles.pixelIcon}>🎮</Text>
-            </View>
+            <Text style={styles.sectionTitle}>NET INCOME</Text>
             <View style={styles.netIncomeCard}>
-              <LinearGradient
-                colors={['#8b5cf6', '#7c3aed']}
-                style={styles.netIncomeGradient}
-              >
-                <View style={styles.pixelBorderWrapper}>
-                  <View style={styles.netIncomeHeader}>
-                    <Text style={styles.netIncomeTitle}>💪 Monthly Net Income</Text>
-                    <View style={styles.changeIndicator}>
-                      <Text style={styles.pixelPlus}>↗️</Text>
-                      <Text style={styles.changePercentage}>+{getChangePercentage()}%</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.netIncomeValue}>
-                    {formatCurrency(financialData.monthlyIncome - financialData.monthlyExpenses)}
-                  </Text>
-                </View>
-              </LinearGradient>
+              <View style={styles.netIncomeHeader}>
+                <Text style={styles.netIncomeTitle}>MONTHLY NET INCOME</Text>
+                <Text style={styles.changePercentage}>+{getChangePercentage()}%</Text>
+              </View>
+              <Text style={styles.netIncomeValue}>
+                {formatCurrency(financialData.monthlyIncome - financialData.monthlyExpenses)}
+              </Text>
             </View>
           </View>
 
           {/* Spending Breakdown */}
           <View style={styles.spendingSection}>
-            <View style={styles.sectionHeaderWithPixel}>
-              <Text style={styles.pixelIcon}>🔥</Text>
-              <Text style={styles.sectionTitle}>Expense Battle Stats</Text>
-              <Text style={styles.pixelIcon}>🔥</Text>
-            </View>
+            <Text style={styles.sectionTitle}>SPENDING BREAKDOWN</Text>
             <View style={styles.spendingCard}>
               {financialData.monthlySpendingByCategory.map((item, index) => (
                 <View key={index} style={styles.categoryRow}>
                   <View style={styles.categoryInfo}>
-                    <Text style={styles.categoryName}>
-                      {getCategoryEmoji(item.category)} {item.category}
-                    </Text>
+                    <Text style={styles.categoryName}>{item.category}</Text>
                     <Text style={styles.categoryAmount}>{formatCurrency(item.amount)}</Text>
                   </View>
                   <View style={styles.progressBarContainer}>
@@ -282,32 +205,18 @@ export default function FinanceHome() {
 
           {/* Recent Transactions */}
           <View style={styles.transactionsSection}>
-            <View style={styles.sectionHeaderWithPixel}>
-              <Text style={styles.pixelIcon}>⚔️</Text>
-              <Text style={styles.sectionTitle}>Recent Battle Log</Text>
-              <Text style={styles.pixelIcon}>⚔️</Text>
-            </View>
+            <Text style={styles.sectionTitle}>RECENT TRANSACTIONS</Text>
             
             <View style={styles.transactionsCard}>
               {financialData.recentTransactions.slice(0, 5).map((transaction) => (
                 <View key={transaction.id} style={styles.transactionRow}>
-                  <View style={styles.transactionIcon}>
-                    <Text style={styles.transactionEmoji}>
-                      {transaction.type === 'income' ? '💰' : '💸'}
-                    </Text>
-                  </View>
                   <View style={styles.transactionInfo}>
                     <Text style={styles.transactionName}>{transaction.name}</Text>
-                    <Text style={styles.transactionCategory}>
-                      {getCategoryEmoji(transaction.category)} {transaction.category}
-                    </Text>
+                    <Text style={styles.transactionCategory}>{transaction.category}</Text>
                   </View>
                   <View style={styles.transactionAmount}>
-                    <Text style={[
-                      styles.transactionValue,
-                      { color: transaction.type === 'income' ? '#10b981' : '#ef4444' }
-                    ]}>
-                      {transaction.type === 'income' ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
+                    <Text style={styles.transactionValue}>
+                      {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
                     </Text>
                     <Text style={styles.transactionDate}>{transaction.date}</Text>
                   </View>
