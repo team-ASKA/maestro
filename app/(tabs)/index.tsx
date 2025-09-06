@@ -2,16 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Upload, TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3, FileText, Plus, Wallet, CreditCard, Home as HomeIcon } from 'lucide-react-native';
-import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
 import * as DocumentPicker from 'expo-document-picker';
 
 const { width, height } = Dimensions.get('window');
 
 export default function FinanceHome() {
   const [fontsLoaded] = useFonts({
-    Inter_400Regular,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
 
   const [financialData, setFinancialData] = useState({
@@ -115,47 +113,19 @@ export default function FinanceHome() {
             <Text style={styles.sectionTitle}>ACTIONS</Text>
             <View style={styles.actionGrid}>
               <TouchableOpacity style={styles.actionCard}>
-                <LinearGradient
-                  colors={['#000000', '#333333', '#000000', '#444444']}
-                  style={styles.actionGradient}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                >
-                  <Text style={styles.actionText}>ADD TRANSACTION</Text>
-                </LinearGradient>
+                <Text style={styles.actionText}>ADD TRANSACTION</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
-                <LinearGradient
-                  colors={['#000000', '#333333', '#000000', '#444444']}
-                  style={styles.actionGradient}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                >
-                  <Text style={styles.actionText}>VIEW REPORTS</Text>
-                </LinearGradient>
+                <Text style={styles.actionText}>VIEW REPORTS</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
-                <LinearGradient
-                  colors={['#000000', '#333333', '#000000', '#444444']}
-                  style={styles.actionGradient}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                >
-                  <Text style={styles.actionText}>SET BUDGET</Text>
-                </LinearGradient>
+                <Text style={styles.actionText}>SET BUDGET</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionCard}>
-                <LinearGradient
-                  colors={['#000000', '#333333', '#000000', '#444444']}
-                  style={styles.actionGradient}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                >
-                  <Text style={styles.actionText}>EXPORT DATA</Text>
-                </LinearGradient>
+                <Text style={styles.actionText}>EXPORT DATA</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -165,53 +135,25 @@ export default function FinanceHome() {
             <Text style={styles.sectionTitle}>OVERVIEW</Text>
             <View style={styles.cardRow}>
               <View style={styles.overviewCard}>
-                <LinearGradient
-                  colors={['#000000', '#333333', '#000000', '#444444']}
-                  style={styles.cardGradient}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                >
-                  <Text style={styles.cardValue}>{formatCurrency(financialData.totalBalance)}</Text>
-                  <Text style={styles.cardLabel}>TOTAL BALANCE</Text>
-                </LinearGradient>
+                <Text style={styles.cardValue}>{formatCurrency(financialData.totalBalance)}</Text>
+                <Text style={styles.cardLabel}>TOTAL BALANCE</Text>
               </View>
               
               <View style={styles.overviewCard}>
-                <LinearGradient
-                  colors={['#000000', '#333333', '#000000', '#444444']}
-                  style={styles.cardGradient}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                >
-                  <Text style={styles.cardValue}>{formatCurrency(financialData.netWorth)}</Text>
-                  <Text style={styles.cardLabel}>NET WORTH</Text>
-                </LinearGradient>
+                <Text style={styles.cardValue}>{formatCurrency(financialData.netWorth)}</Text>
+                <Text style={styles.cardLabel}>NET WORTH</Text>
               </View>
             </View>
 
             <View style={styles.cardRow}>
               <View style={styles.overviewCard}>
-                <LinearGradient
-                  colors={['#000000', '#333333', '#000000', '#444444']}
-                  style={styles.cardGradient}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                >
-                  <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyIncome)}</Text>
-                  <Text style={styles.cardLabel}>MONTHLY INCOME</Text>
-                </LinearGradient>
+                <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyIncome)}</Text>
+                <Text style={styles.cardLabel}>MONTHLY INCOME</Text>
               </View>
               
               <View style={styles.overviewCard}>
-                <LinearGradient
-                  colors={['#000000', '#333333', '#000000', '#444444']}
-                  style={styles.cardGradient}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                >
-                  <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyExpenses)}</Text>
-                  <Text style={styles.cardLabel}>MONTHLY EXPENSES</Text>
-                </LinearGradient>
+                <Text style={styles.cardValue}>{formatCurrency(financialData.monthlyExpenses)}</Text>
+                <Text style={styles.cardLabel}>MONTHLY EXPENSES</Text>
               </View>
             </View>
           </View>
@@ -220,20 +162,13 @@ export default function FinanceHome() {
           <View style={styles.netIncomeSection}>
             <Text style={styles.sectionTitle}>NET INCOME</Text>
             <View style={styles.netIncomeCard}>
-              <LinearGradient
-                colors={['#000000', '#333333', '#000000', '#444444']}
-                style={styles.netIncomeGradient}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 1}}
-              >
-                <View style={styles.netIncomeHeader}>
-                  <Text style={styles.netIncomeTitle}>MONTHLY NET INCOME</Text>
-                  <Text style={styles.changePercentage}>+{getChangePercentage()}%</Text>
-                </View>
-                <Text style={styles.netIncomeValue}>
-                  {formatCurrency(financialData.monthlyIncome - financialData.monthlyExpenses)}
-                </Text>
-              </LinearGradient>
+              <View style={styles.netIncomeHeader}>
+                <Text style={styles.netIncomeTitle}>MONTHLY NET INCOME</Text>
+                <Text style={styles.changePercentage}>+{getChangePercentage()}%</Text>
+              </View>
+              <Text style={styles.netIncomeValue}>
+                {formatCurrency(financialData.monthlyIncome - financialData.monthlyExpenses)}
+              </Text>
             </View>
           </View>
 
@@ -241,27 +176,20 @@ export default function FinanceHome() {
           <View style={styles.spendingSection}>
             <Text style={styles.sectionTitle}>SPENDING BREAKDOWN</Text>
             <View style={styles.spendingCard}>
-              <LinearGradient
-                colors={['#000000', '#333333', '#000000', '#444444']}
-                style={styles.spendingGradient}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 1}}
-              >
-                {financialData.monthlySpendingByCategory.map((item, index) => (
-                  <View key={index} style={styles.categoryRow}>
-                    <View style={styles.categoryInfo}>
-                      <Text style={styles.categoryName}>{item.category}</Text>
-                      <Text style={styles.categoryAmount}>{formatCurrency(item.amount)}</Text>
-                    </View>
-                    <View style={styles.progressBarContainer}>
-                      <View 
-                        style={[styles.progressBar, { width: `${item.percentage}%` }]}
-                      />
-                    </View>
-                    <Text style={styles.categoryPercentage}>{item.percentage}%</Text>
+              {financialData.monthlySpendingByCategory.map((item, index) => (
+                <View key={index} style={styles.categoryRow}>
+                  <View style={styles.categoryInfo}>
+                    <Text style={styles.categoryName}>{item.category}</Text>
+                    <Text style={styles.categoryAmount}>{formatCurrency(item.amount)}</Text>
                   </View>
-                ))}
-              </LinearGradient>
+                  <View style={styles.progressBarContainer}>
+                    <View 
+                      style={[styles.progressBar, { width: `${item.percentage}%` }]}
+                    />
+                  </View>
+                  <Text style={styles.categoryPercentage}>{item.percentage}%</Text>
+                </View>
+              ))}
             </View>
           </View>
 
@@ -270,27 +198,20 @@ export default function FinanceHome() {
             <Text style={styles.sectionTitle}>RECENT TRANSACTIONS</Text>
             
             <View style={styles.transactionsCard}>
-              <LinearGradient
-                colors={['#000000', '#333333', '#000000', '#444444']}
-                style={styles.transactionsGradient}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 1}}
-              >
-                {financialData.recentTransactions.slice(0, 5).map((transaction) => (
-                  <View key={transaction.id} style={styles.transactionRow}>
-                    <View style={styles.transactionInfo}>
-                      <Text style={styles.transactionName}>{transaction.name}</Text>
-                      <Text style={styles.transactionCategory}>{transaction.category}</Text>
-                    </View>
-                    <View style={styles.transactionAmount}>
-                      <Text style={styles.transactionValue}>
-                        {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
-                      </Text>
-                      <Text style={styles.transactionDate}>{transaction.date}</Text>
-                    </View>
+              {financialData.recentTransactions.slice(0, 5).map((transaction) => (
+                <View key={transaction.id} style={styles.transactionRow}>
+                  <View style={styles.transactionInfo}>
+                    <Text style={styles.transactionName}>{transaction.name}</Text>
+                    <Text style={styles.transactionCategory}>{transaction.category}</Text>
                   </View>
-                ))}
-              </LinearGradient>
+                  <View style={styles.transactionAmount}>
+                    <Text style={styles.transactionValue}>
+                      {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+                    </Text>
+                    <Text style={styles.transactionDate}>{transaction.date}</Text>
+                  </View>
+                </View>
+              ))}
             </View>
           </View>
         </ScrollView>
@@ -328,7 +249,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Minecraftia',
     color: '#000000',
     letterSpacing: 5,
     textTransform: 'uppercase',
@@ -337,17 +258,16 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
   },
   uploadButton: {
-    backgroundColor: '#000000',
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
   uploadButtonText: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 12,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Minecraftia',
     letterSpacing: 3,
     textTransform: 'uppercase',
-    textShadowColor: '#333333',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
@@ -357,7 +277,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: 'Minecraftia',
     color: '#000000',
     marginBottom: 15,
     letterSpacing: 4,
@@ -379,20 +299,17 @@ const styles = StyleSheet.create({
   actionCard: {
     width: '48%',
     marginBottom: 15,
-    overflow: 'hidden',
-  },
-  actionGradient: {
     padding: 20,
     alignItems: 'center',
   },
   actionText: {
     fontSize: 12,
-    fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     textAlign: 'center',
     letterSpacing: 3,
     textTransform: 'uppercase',
-    textShadowColor: '#666666',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
@@ -407,31 +324,28 @@ const styles = StyleSheet.create({
   },
   overviewCard: {
     flex: 0.48,
-    overflow: 'hidden',
-  },
-  cardGradient: {
     padding: 20,
     alignItems: 'center',
   },
   cardValue: {
     fontSize: 16,
-    fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     textAlign: 'center',
     letterSpacing: 2,
-    textShadowColor: '#666666',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
   cardLabel: {
     fontSize: 8,
-    fontFamily: 'Inter_700Bold',
-    color: '#cccccc',
+    fontFamily: 'Minecraftia',
+    color: '#666666',
     marginTop: 8,
     textAlign: 'center',
     letterSpacing: 3,
     textTransform: 'uppercase',
-    textShadowColor: '#333333',
+    textShadowColor: '#dddddd',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
@@ -440,9 +354,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   netIncomeCard: {
-    overflow: 'hidden',
-  },
-  netIncomeGradient: {
     padding: 20,
   },
   netIncomeHeader: {
@@ -453,30 +364,30 @@ const styles = StyleSheet.create({
   },
   netIncomeTitle: {
     fontSize: 12,
-    fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     letterSpacing: 3,
     textTransform: 'uppercase',
-    textShadowColor: '#666666',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
   changePercentage: {
     fontSize: 12,
-    fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     letterSpacing: 3,
-    textShadowColor: '#666666',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
   netIncomeValue: {
     fontSize: 20,
-    fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     textAlign: 'center',
     letterSpacing: 2,
-    textShadowColor: '#666666',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
@@ -485,9 +396,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   spendingCard: {
-    overflow: 'hidden',
-  },
-  spendingGradient: {
     padding: 20,
   },
   categoryRow: {
@@ -500,28 +408,28 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 12,
-    fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     letterSpacing: 3,
     textTransform: 'uppercase',
-    textShadowColor: '#666666',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
   categoryAmount: {
     fontSize: 10,
-    fontFamily: 'Inter_700Bold',
-    color: '#cccccc',
+    fontFamily: 'Minecraftia',
+    color: '#666666',
     marginTop: 2,
     letterSpacing: 2,
-    textShadowColor: '#333333',
+    textShadowColor: '#dddddd',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
   progressBarContainer: {
     flex: 1,
     height: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#dddddd',
     marginHorizontal: 15,
   },
   progressBar: {
@@ -530,12 +438,12 @@ const styles = StyleSheet.create({
   },
   categoryPercentage: {
     fontSize: 10,
-    fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     minWidth: 35,
     textAlign: 'right',
     letterSpacing: 2,
-    textShadowColor: '#666666',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
@@ -544,9 +452,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   transactionsCard: {
-    overflow: 'hidden',
-  },
-  transactionsGradient: {
     padding: 20,
   },
   transactionRow: {
@@ -560,22 +465,22 @@ const styles = StyleSheet.create({
   },
   transactionName: {
     fontSize: 12,
-    fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     letterSpacing: 3,
     textTransform: 'uppercase',
-    textShadowColor: '#666666',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
   transactionCategory: {
     fontSize: 10,
-    fontFamily: 'Inter_700Bold',
-    color: '#cccccc',
+    fontFamily: 'Minecraftia',
+    color: '#666666',
     marginTop: 2,
     letterSpacing: 3,
     textTransform: 'uppercase',
-    textShadowColor: '#333333',
+    textShadowColor: '#dddddd',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
@@ -584,20 +489,20 @@ const styles = StyleSheet.create({
   },
   transactionValue: {
     fontSize: 12,
-    fontFamily: 'Inter_700Bold',
-    color: '#ffffff',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     letterSpacing: 2,
-    textShadowColor: '#666666',
+    textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
   transactionDate: {
     fontSize: 8,
-    fontFamily: 'Inter_700Bold',
-    color: '#cccccc',
+    fontFamily: 'Minecraftia',
+    color: '#666666',
     marginTop: 2,
     letterSpacing: 3,
-    textShadowColor: '#333333',
+    textShadowColor: '#dddddd',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
