@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions, Image, 
 import { Lock, Target, Flame, Crown, Star } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
+import { useAppContext } from '@/lib/AppContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,13 +35,22 @@ export default function FinancialJourneyMap() {
     'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
 
+  const { 
+    completedDays, 
+    dayTransactions, 
+    quests, 
+    addTransactionToDay, 
+    getDayTransactions, 
+    getDayTotalExpenses, 
+    getCurrentDay 
+  } = useAppContext();
+  
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [currentStreak, setCurrentStreak] = useState(1);
   const [showQuestPopup, setShowQuestPopup] = useState(false);
-  const [completedDays, setCompletedDays] = useState<Set<number>>(new Set()); // Track completed days
 
-  const currentDay = 1; // Current progress day - start from day 1
+  const currentDay = getCurrentDay(); // Get current day from context
   const totalXP = 1250; // Current XP
   const currentLevel = Math.floor(totalXP / 1000) + 1;
 
@@ -54,58 +64,27 @@ export default function FinancialJourneyMap() {
       const levelDate = new Date(startDate);
       levelDate.setDate(startDate.getDate() + i);
       
-      const isCompleted = completedDays.has(i + 1);
+      const dayNumber = i + 1;
+      const isCompleted = completedDays.has(dayNumber);
+      const dayExpenses = getDayTotalExpenses(dayNumber);
+      
       generatedLevels.push({
-        id: i + 1,
-        day: i + 1,
-        title: `Day ${i + 1}`,
+        id: dayNumber,
+        day: dayNumber,
+        title: `Day ${dayNumber}`,
         completed: isCompleted,
-        hasExpenses: isCompleted, // Has expenses if completed
-        expenseAmount: isCompleted ? 2500 : 0, // Sample amount if completed
+        hasExpenses: isCompleted,
+        expenseAmount: dayExpenses,
         date: levelDate,
-        streak: isCompleted ? i + 1 : 0,
+        streak: isCompleted ? dayNumber : 0,
       });
     }
     // Reverse array so latest days appear at top (upward progression)
     return generatedLevels.reverse();
-  }, [currentDay, completedDays]);
+  }, [currentDay, completedDays, dayTransactions]);
 
-  // Long-term quests data - memoized for performance
-  const longTermQuests = useMemo(() => [
-    {
-      id: 1,
-      title: 'Emergency Fund',
-      description: 'Save ₹1,00,000 for emergencies',
-      progress: 65,
-      current: 65000,
-      target: 100000,
-      reward: 500,
-      difficulty: 'Epic',
-      icon: '🛡️'
-    },
-    {
-      id: 2,
-      title: 'Investment Portfolio',
-      description: 'Build a ₹5,00,000 investment portfolio',
-      progress: 32,
-      current: 160000,
-      target: 500000,
-      reward: 1000,
-      difficulty: 'Legendary',
-      icon: '📈'
-    },
-    {
-      id: 3,
-      title: 'Debt Freedom',
-      description: 'Pay off all credit card debt',
-      progress: 78,
-      current: 78000,
-      target: 100000,
-      reward: 750,
-      difficulty: 'Rare',
-      icon: '⚔️'
-    }
-  ], []);
+  // Use quests from global context
+  const longTermQuests = useMemo(() => quests, [quests]);
 
   if (!fontsLoaded) {
     return null;
@@ -113,14 +92,19 @@ export default function FinancialJourneyMap() {
 
   const handleLevelPress = (level: Level) => {
     if (level.completed) {
-      // Show details for completed level with improved styling
+      // Show details for completed level with transaction list
+      const dayTransactions = getDayTransactions(level.day);
+      const transactionList = dayTransactions.map(t => 
+        `• ${t.name}: ${t.type === 'income' ? '+' : '-'}${formatCurrency(Math.abs(t.amount))}`
+      ).join('\n');
+
       Alert.alert(
         `🎉 Day ${level.day} Completed!`,
         `📅 Date: ${level.date.toLocaleDateString('en-IN', { 
           day: '2-digit', 
           month: 'short',
           year: 'numeric'
-        })}\n\n💰 Expenses Logged: ${formatCurrency(level.expenseAmount)}\n\n✅ Status: Successfully Completed\n🔥 Streak Day: ${level.streak}\n\n🏆 Great job staying on track!`,
+        })}\n\n💰 Total Expenses: ${formatCurrency(level.expenseAmount)}\n\n📋 Transactions (${dayTransactions.length}):\n${transactionList}\n\n✅ Status: Successfully Completed\n🔥 Streak Day: ${level.streak}\n\n🏆 Great job staying on track!`,
         [
           { 
             text: 'Awesome!', 
@@ -156,8 +140,21 @@ export default function FinancialJourneyMap() {
 
   const handleAddExpense = (transactionData: any) => {
     if (selectedLevel) {
-      // Mark the day as completed
-      setCompletedDays(prev => new Set([...prev, selectedLevel.day]));
+      // Create transaction object
+      const newTransaction = {
+        id: Date.now(),
+        name: transactionData.description,
+        category: transactionData.category,
+        amount: transactionData.type === 'income' ? transactionData.amount : -transactionData.amount,
+        type: transactionData.type,
+        date: transactionData.date.toLocaleDateString('en-IN', { 
+          day: '2-digit', 
+          month: 'short' 
+        }),
+      };
+
+      // Add transaction to the selected day
+      addTransactionToDay(newTransaction, selectedLevel.day);
       
       // Update streak if it's the current day
       if (selectedLevel.day === currentDay + 1) {
@@ -166,7 +163,7 @@ export default function FinancialJourneyMap() {
 
       Alert.alert(
         '🎉 Day Completed!', 
-        `Amazing! Day ${selectedLevel.day} is now complete!\n\n🔥 Current Streak: ${currentStreak + 1} days\n\n🚀 Keep up the great work!`,
+        `Amazing! Day ${selectedLevel.day} is now complete!\n\n💰 Transaction: ${newTransaction.name} (${formatCurrency(Math.abs(newTransaction.amount))})\n\n🔥 Current Streak: ${currentStreak + 1} days\n\n🚀 Keep up the great work!`,
         [{ 
           text: 'Continue Journey!', 
           style: 'default' 
@@ -333,7 +330,11 @@ export default function FinancialJourneyMap() {
                         <Text style={styles.questTitle}>{quest.title}</Text>
                         <Text style={styles.questDescription}>{quest.description}</Text>
                       </View>
-                      <Text style={[styles.questDifficulty, { color: quest.difficulty === 'Legendary' ? COLORS.crimsonRed : COLORS.emeraldGreen }]}>
+                      <Text style={[styles.questDifficulty, { 
+                        color: quest.difficulty === 'Legendary' ? COLORS.crimsonRed : 
+                              quest.difficulty === 'Epic' ? '#7C3AED' :
+                              quest.difficulty === 'Rare' ? '#3B82F6' : COLORS.emeraldGreen 
+                      }]}>
                         {quest.difficulty}
                       </Text>
                     </View>
@@ -346,7 +347,7 @@ export default function FinancialJourneyMap() {
                           style={[styles.questProgressFill, { width: `${quest.progress}%`, backgroundColor: COLORS.emeraldGreen }]}
                         />
                       </View>
-                      <Text style={styles.questReward}>Reward: {quest.reward} XP</Text>
+                      <Text style={styles.questReward}>Reward: {quest.reward} XP • Type: {quest.type}</Text>
                     </View>
                   </View>
                 )}

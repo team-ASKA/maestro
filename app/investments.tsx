@@ -14,6 +14,7 @@ import { ArrowLeft, Plus, Target, Star, Calendar, TrendingUp, Crown, Sword } fro
 import { router } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { SetQuestModal } from '@/components/SetQuestModal';
+import { useAppContext } from '@/lib/AppContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,6 +36,7 @@ export default function InvestmentsScreen() {
     'Minecraftia': require('../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
 
+  const { addQuest, quests: globalQuests } = useAppContext();
   const [showSetQuestModal, setShowSetQuestModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'active' | 'completed' | 'all'>('active');
 
@@ -122,6 +124,28 @@ export default function InvestmentsScreen() {
   };
 
   const handleAddQuest = (questData: any) => {
+    // Convert the investment quest data to our global context format
+    const investmentQuest = {
+      title: questData.title,
+      description: questData.description,
+      progress: Math.round((questData.currentAmount / questData.targetAmount) * 100),
+      current: questData.currentAmount,
+      target: questData.targetAmount,
+      reward: Math.floor(questData.targetAmount / 1000), // XP based on target amount
+      difficulty: questData.difficulty as 'Easy' | 'Medium' | 'Hard' | 'Rare' | 'Epic' | 'Legendary',
+      icon: questData.category === 'emergency_fund' ? '🛡️' :
+            questData.category === 'house_purchase' ? '🏰' :
+            questData.category === 'retirement' ? '👑' :
+            questData.category === 'vacation' ? '✈️' : '💰',
+      type: 'investment' as const,
+      category: questData.category,
+      createdDate: new Date().toISOString(),
+    };
+
+    // Add to global context
+    addQuest(investmentQuest);
+
+    // Also add to local state for immediate display
     const newQuest: Quest = {
       id: Date.now().toString(),
       ...questData,
@@ -129,7 +153,15 @@ export default function InvestmentsScreen() {
     };
 
     setQuests(prevQuests => [...prevQuests, newQuest]);
-    Alert.alert('Quest Created!', `${questData.title} has been added to your quest log.`);
+    
+    Alert.alert(
+      '🎯 Investment Quest Created!', 
+      `${questData.title} has been added to your Quest Management and Journey Map!`,
+      [
+        { text: 'View Map', onPress: () => router.push('/(tabs)/map') },
+        { text: 'Continue', style: 'cancel' }
+      ]
+    );
   };
 
   const getFilteredQuests = () => {

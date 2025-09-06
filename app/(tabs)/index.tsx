@@ -7,6 +7,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { AddTransactionModal } from '@/components/AddTransactionModal';
 import { SetBudgetModal } from '@/components/SetBudgetModal';
 import { router } from 'expo-router';
+import { useAppContext } from '@/lib/AppContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ export default function FinanceHome() {
     'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
 
+  const { addTransactionToDay, addQuest, getCurrentDay } = useAppContext();
   const [showAddTransactionModal, setShowAddTransactionModal] = useState(false);
   const [showSetBudgetModal, setShowSetBudgetModal] = useState(false);
 
@@ -93,6 +95,7 @@ export default function FinanceHome() {
   };
 
   const handleAddTransaction = (transactionData: any) => {
+    const currentDay = getCurrentDay();
     const newTransaction = {
       id: Date.now(),
       name: transactionData.description,
@@ -105,6 +108,10 @@ export default function FinanceHome() {
       }),
     };
 
+    // Add transaction to the current day in the map
+    addTransactionToDay(newTransaction, currentDay);
+
+    // Update local financial data for homepage display
     setFinancialData(prevData => ({
       ...prevData,
       recentTransactions: [newTransaction, ...prevData.recentTransactions],
@@ -119,7 +126,14 @@ export default function FinanceHome() {
         : prevData.monthlyExpenses,
     }));
 
-    Alert.alert('Quest Completed!', 'Your transaction has been added to the ledger.');
+    Alert.alert(
+      '🎉 Transaction Added!', 
+      `Your transaction has been logged for Day ${currentDay}! Check the Journey Map to see your progress.`,
+      [
+        { text: 'View Map', onPress: () => router.push('/(tabs)/map') },
+        { text: 'Continue', style: 'cancel' }
+      ]
+    );
   };
 
   const handleViewReports = () => {
@@ -131,10 +145,36 @@ export default function FinanceHome() {
   };
 
   const handleBudgetSet = (budgetData: any) => {
-    // In a real app, you would save this to your database
-    Alert.alert('Budget Set!', `${budgetData.period} budget of ₹${budgetData.amount.toLocaleString('en-IN')} set for ${budgetData.category}`, [
-      { text: 'OK', style: 'default' }
-    ]);
+    // Create a quest for the budget
+    const budgetQuest = {
+      title: `${budgetData.category} Budget`,
+      description: `Stay within ₹${budgetData.amount.toLocaleString('en-IN')} ${budgetData.period} budget for ${budgetData.category}`,
+      progress: 0,
+      current: 0,
+      target: budgetData.amount,
+      reward: Math.floor(budgetData.amount / 100), // XP based on budget amount
+      difficulty: budgetData.amount > 50000 ? 'Hard' : budgetData.amount > 20000 ? 'Medium' : 'Easy',
+      icon: budgetData.category === 'Food' ? '🍽️' : 
+            budgetData.category === 'Transport' ? '🚗' :
+            budgetData.category === 'Entertainment' ? '🎬' :
+            budgetData.category === 'Shopping' ? '🛒' : '💰',
+      type: 'budget' as const,
+      category: budgetData.category,
+      amount: budgetData.amount,
+      period: budgetData.period,
+      createdDate: new Date().toISOString(),
+    };
+
+    addQuest(budgetQuest);
+
+    Alert.alert(
+      '🎯 Budget Quest Created!', 
+      `Your ${budgetData.period} budget quest for ${budgetData.category} has been added to your Journey Map!`,
+      [
+        { text: 'View Quests', onPress: () => router.push('/(tabs)/map') },
+        { text: 'Continue', style: 'cancel' }
+      ]
+    );
   };
 
   const handleInvestments = () => {
