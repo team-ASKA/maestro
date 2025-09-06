@@ -1,166 +1,154 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MapPin, Crown, Trash as Treasure, Target, CircleCheck as CheckCircle } from 'lucide-react-native';
+import { MapPin, Crown, Trash as Treasure, Target, CircleCheck as CheckCircle, Star, Gift, Lock } from 'lucide-react-native';
 import { QuestCard } from '@/components/QuestCard';
 import { ProgressionPath } from '@/components/ProgressionPath';
-import { useFonts, Cinzel_400Regular, Cinzel_600SemiBold } from '@expo-google-fonts/cinzel';
+import { useFonts, Orbitron_400Regular, Orbitron_700Bold, Orbitron_900Black } from '@expo-google-fonts/orbitron';
 
 const { width } = Dimensions.get('window');
 
 export default function QuestMap() {
   const [fontsLoaded] = useFonts({
-    Cinzel_400Regular,
-    Cinzel_600SemiBold,
+    Orbitron_400Regular,
+    Orbitron_700Bold,
+    Orbitron_900Black,
   });
 
-  const [activeQuests] = useState([
-    {
-      id: 1,
-      title: 'The Emergency Fortress',
-      description: 'Build your emergency fund to 6 months of expenses',
-      progress: 65,
-      target: 15000,
-      current: 9750,
-      reward: 500,
-      difficulty: 'Epic',
-      icon: '🏰',
-    },
-    {
-      id: 2,
-      title: 'Investment Mastery',
-      description: 'Grow your investment portfolio',
-      progress: 80,
-      target: 25000,
-      current: 20000,
-      reward: 750,
-      difficulty: 'Legendary',
-      icon: '📈',
-    },
-    {
-      id: 3,
-      title: 'Debt Slayer',
-      description: 'Defeat your credit card debt once and for all',
-      progress: 45,
-      target: 8500,
-      current: 3825,
-      reward: 300,
-      difficulty: 'Rare',
-      icon: '⚔️',
-    },
+  const [pathLevels] = useState([
+    { id: 1, day: 1, title: 'First Steps', icon: '🌱', completed: true, type: 'daily', reward: 25 },
+    { id: 2, day: 2, title: 'Budget Basics', icon: '📊', completed: true, type: 'daily', reward: 25 },
+    { id: 3, day: 3, title: 'Expense Tracking', icon: '📝', completed: true, type: 'daily', reward: 25 },
+    { id: 4, day: 4, title: 'Savings Goal', icon: '🎯', completed: true, type: 'daily', reward: 25 },
+    { id: 5, day: 5, title: 'Emergency Fund', icon: '🛡️', completed: true, type: 'milestone', reward: 100 },
+    { id: 6, day: 6, title: 'Investment Start', icon: '📈', completed: false, type: 'daily', reward: 30 },
+    { id: 7, day: 7, title: 'Weekly Review', icon: '🔍', completed: false, type: 'weekly', reward: 50 },
+    { id: 8, day: 8, title: 'Debt Strategy', icon: '⚔️', completed: false, type: 'daily', reward: 30 },
+    { id: 9, day: 9, title: 'Risk Assessment', icon: '⚖️', completed: false, type: 'daily', reward: 30 },
+    { id: 10, day: 10, title: 'Investment Shrine', icon: '🏛️', completed: false, type: 'milestone', reward: 150 },
+    { id: 11, day: 11, title: 'Portfolio Balance', icon: '⚖️', completed: false, type: 'daily', reward: 35 },
+    { id: 12, day: 12, title: 'Tax Planning', icon: '📋', completed: false, type: 'daily', reward: 35 },
+    { id: 13, day: 13, title: 'Insurance Check', icon: '🛡️', completed: false, type: 'daily', reward: 35 },
+    { id: 14, day: 14, title: 'Bi-weekly Boss', icon: '🐉', completed: false, type: 'boss', reward: 200 },
+    { id: 15, day: 15, title: 'Wealth Temple', icon: '🏰', completed: false, type: 'milestone', reward: 300 },
   ]);
 
-  const [completedMilestones] = useState([
-    { id: 1, name: 'First Steps', icon: '🌱', completed: true },
-    { id: 2, name: 'Savings Shrine', icon: '💰', completed: true },
-    { id: 3, name: 'Budget Temple', icon: '📊', completed: true },
-    { id: 4, name: 'Investment Gateway', icon: '🏛️', completed: false },
-    { id: 5, name: 'Wealth Castle', icon: '🏰', completed: false },
-  ]);
+  const currentDay = 5; // User's current progress
 
   if (!fontsLoaded) {
     return null;
   }
 
-  return (
-    <LinearGradient
-      colors={['#0f172a', '#1e3a8a', '#3730a3']}
-      style={styles.container}
-    >
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.headerContainer}>
-          <LinearGradient
-            colors={['#d4af37', '#fbbf24']}
-            style={styles.headerBadge}
-          >
-            <Crown size={20} color="#1e3a8a" />
-            <Text style={styles.headerText}>Quest Map</Text>
-          </LinearGradient>
-          <Text style={styles.subtitleText}>Your Financial Journey</Text>
-        </View>
+  const renderPathLevel = (level, index) => {
+    const isUnlocked = level.day <= currentDay + 1;
+    const isActive = level.day === currentDay + 1;
+    const isCompleted = level.completed;
+    
+    const getLevelColors = () => {
+      if (level.type === 'boss') return ['#e53e3e', '#c53030'];
+      if (level.type === 'milestone') return ['#d69e2e', '#b7791f'];
+      if (level.type === 'weekly') return ['#805ad5', '#6b46c1'];
+      return ['#38a169', '#2f855a'];
+    };
 
-        {/* Progression Path */}
-        <View style={styles.pathContainer}>
-          <ProgressionPath milestones={completedMilestones} />
-        </View>
+    const getPositionStyle = () => {
+      const isEven = index % 2 === 0;
+      return {
+        alignSelf: isEven ? 'flex-start' : 'flex-end',
+        marginLeft: isEven ? 20 : 0,
+        marginRight: isEven ? 0 : 20,
+      };
+    };
 
-        {/* Active Quests */}
-        <View style={styles.questsContainer}>
-          <Text style={styles.sectionTitle}>Active Quests</Text>
-          
-          {activeQuests.map((quest) => (
-            <QuestCard
-              key={quest.id}
-              quest={quest}
-              onPress={() => {}}
+    return (
+      <View key={level.id} style={[styles.levelContainer, getPositionStyle()]}>
+        {/* Connecting Path Line */}
+        {index > 0 && (
+          <View style={styles.pathLine}>
+            <LinearGradient
+              colors={isCompleted ? ['#38a169', '#2f855a'] : ['#4a5568', '#2d3748']}
+              style={styles.pathLineGradient}
             />
-          ))}
-        </View>
-
-        {/* Daily Challenges */}
-        <View style={styles.dailyChallengesContainer}>
-          <Text style={styles.sectionTitle}>Daily Challenges</Text>
-          
-          <View style={styles.challengeGrid}>
-            <TouchableOpacity style={styles.challengeCard}>
-              <LinearGradient
-                colors={['#374151', '#4b5563']}
-                style={styles.challengeGradient}
-              >
-                <Text style={styles.challengeIcon}>📝</Text>
-                <Text style={styles.challengeTitle}>Log Expenses</Text>
-                <Text style={styles.challengeReward}>+25 XP</Text>
-                <CheckCircle size={16} color="#10b981" />
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.challengeCard}>
-              <LinearGradient
-                colors={['#374151', '#4b5563']}
-                style={styles.challengeGradient}
-              >
-                <Text style={styles.challengeIcon}>💡</Text>
-                <Text style={styles.challengeTitle}>Learn Finance</Text>
-                <Text style={styles.challengeReward}>+50 XP</Text>
-                <Target size={16} color="#6b7280" />
-              </LinearGradient>
-            </TouchableOpacity>
           </View>
-        </View>
-
-        {/* Weekly Boss Battle */}
-        <TouchableOpacity style={styles.bossContainer}>
+        )}
+        
+        {/* Level Node */}
+        <TouchableOpacity 
+          style={[styles.levelNode, !isUnlocked && styles.lockedNode]}
+          disabled={!isUnlocked}
+        >
           <LinearGradient
-            colors={['#dc2626', '#ef4444', '#f87171']}
-            style={styles.bossGradient}
+            colors={isCompleted ? ['#38a169', '#2f855a'] : 
+                   isActive ? ['#3182ce', '#2c5282'] :
+                   isUnlocked ? getLevelColors() : ['#4a5568', '#2d3748']}
+            style={styles.levelNodeGradient}
           >
-            <View style={styles.bossHeader}>
-              <Text style={styles.bossIcon}>🐉</Text>
-              <View style={styles.bossInfo}>
-                <Text style={styles.bossTitle}>Weekly Boss: Impulse Spending</Text>
-                <Text style={styles.bossSubtitle}>Stay under budget for 7 days</Text>
-              </View>
-            </View>
+            {!isUnlocked ? (
+              <Lock size={24} color="#a0aec0" />
+            ) : (
+              <Text style={styles.levelIcon}>{level.icon}</Text>
+            )}
             
-            <View style={styles.bossProgress}>
-              <View style={styles.bossProgressBar}>
-                <LinearGradient
-                  colors={['#10b981', '#059669']}
-                  style={[styles.bossProgressFill, { width: '60%' }]}
-                />
+            {isCompleted && (
+              <View style={styles.completedBadge}>
+                <CheckCircle size={16} color="#38a169" />
               </View>
-              <Text style={styles.bossProgressText}>4/7 days</Text>
-            </View>
-            
-            <View style={styles.bossReward}>
-              <Treasure size={16} color="#fbbf24" />
-              <Text style={styles.bossRewardText}>Reward: 200 XP + Legendary Badge</Text>
-            </View>
+            )}
           </LinearGradient>
         </TouchableOpacity>
-      </ScrollView>
-    </LinearGradient>
+        
+        {/* Level Info Card */}
+        <View style={[styles.levelInfoCard, !isUnlocked && styles.lockedCard]}>
+          <LinearGradient
+            colors={['rgba(26, 32, 44, 0.9)', 'rgba(45, 55, 72, 0.9)']}
+            style={styles.levelInfoGradient}
+          >
+            <Text style={styles.levelDay}>Day {level.day}</Text>
+            <Text style={styles.levelTitle}>{level.title}</Text>
+            <View style={styles.levelReward}>
+              <Star size={12} color="#d69e2e" />
+              <Text style={styles.rewardText}>{level.reward} XP</Text>
+            </View>
+            <Text style={styles.levelType}>{level.type.toUpperCase()}</Text>
+          </LinearGradient>
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#1a202c', '#2d3748', '#4a5568']}
+        style={styles.backgroundGradient}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <LinearGradient
+            colors={['#d69e2e', '#b7791f']}
+            style={styles.headerBadge}
+          >
+            <Crown size={20} color="#1a202c" />
+            <Text style={styles.headerText}>Financial Path</Text>
+          </LinearGradient>
+          <Text style={styles.subtitleText}>Your Journey to Wealth</Text>
+        </View>
+
+        {/* Scrollable Path */}
+        <ScrollView 
+          style={styles.pathScrollView} 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.pathContent}
+        >
+          <View style={styles.pathContainer}>
+            {pathLevels.map((level, index) => renderPathLevel(level, index))}
+          </View>
+          
+          {/* Bottom Padding */}
+          <View style={styles.bottomPadding} />
+        </ScrollView>
+      </LinearGradient>
+    </View>
   );
 }
 
@@ -168,14 +156,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
+  backgroundGradient: {
     flex: 1,
-    paddingTop: 60,
   },
-  headerContainer: {
+  header: {
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginBottom: 30,
+    paddingTop: 60,
+    paddingBottom: 20,
   },
   headerBadge: {
     flexDirection: 'row',
@@ -184,132 +172,140 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   headerText: {
     fontSize: 18,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#1e3a8a',
+    fontFamily: 'Orbitron_700Bold',
+    color: '#1a202c',
     marginLeft: 8,
   },
   subtitleText: {
     fontSize: 14,
-    color: '#9ca3af',
-    fontFamily: 'Cinzel_400Regular',
+    color: '#a0aec0',
+    fontFamily: 'Orbitron_400Regular',
+  },
+  pathScrollView: {
+    flex: 1,
+  },
+  pathContent: {
+    paddingBottom: 100,
   },
   pathContainer: {
-    paddingHorizontal: 20,
+    paddingTop: 20,
+    position: 'relative',
+  },
+  levelContainer: {
+    width: width * 0.4,
     marginBottom: 40,
+    position: 'relative',
   },
-  questsContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
+  pathLine: {
+    position: 'absolute',
+    top: -20,
+    left: '50%',
+    width: 4,
+    height: 40,
+    marginLeft: -2,
+    zIndex: 0,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#d4af37',
-    marginBottom: 20,
+  pathLineGradient: {
+    flex: 1,
+    borderRadius: 2,
+  },
+  levelNode: {
+    alignSelf: 'center',
+    marginBottom: 10,
+    zIndex: 2,
+  },
+  levelNodeGradient: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#2d3748',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    position: 'relative',
+  },
+  lockedNode: {
+    opacity: 0.5,
+  },
+  levelIcon: {
+    fontSize: 28,
     textAlign: 'center',
   },
-  dailyChallengesContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
+  completedBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  challengeGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  challengeCard: {
-    flex: 0.48,
+  levelInfoCard: {
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#d4af37',
+    borderColor: '#4a5568',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  challengeGradient: {
-    padding: 16,
+  lockedCard: {
+    opacity: 0.6,
+  },
+  levelInfoGradient: {
+    padding: 12,
     alignItems: 'center',
   },
-  challengeIcon: {
-    fontSize: 24,
-    marginBottom: 8,
-  },
-  challengeTitle: {
-    fontSize: 14,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#f3e8d3',
+  levelDay: {
+    fontSize: 10,
+    fontFamily: 'Orbitron_400Regular',
+    color: '#a0aec0',
     marginBottom: 4,
+  },
+  levelTitle: {
+    fontSize: 14,
+    fontFamily: 'Orbitron_700Bold',
+    color: '#ffffff',
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  levelReward: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  rewardText: {
+    fontSize: 12,
+    fontFamily: 'Orbitron_400Regular',
+    color: '#d69e2e',
+    marginLeft: 4,
+  },
+  levelType: {
+    fontSize: 8,
+    fontFamily: 'Orbitron_700Bold',
+    color: '#718096',
     textAlign: 'center',
   },
-  challengeReward: {
-    fontSize: 12,
-    color: '#d4af37',
-    marginBottom: 8,
-  },
-  bossContainer: {
-    marginHorizontal: 20,
-    marginBottom: 30,
-    borderRadius: 16,
-    overflow: 'hidden',
-    borderWidth: 3,
-    borderColor: '#dc2626',
-    shadowColor: '#dc2626',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 12,
-  },
-  bossGradient: {
-    padding: 20,
-  },
-  bossHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  bossIcon: {
-    fontSize: 32,
-    marginRight: 12,
-  },
-  bossInfo: {
-    flex: 1,
-  },
-  bossTitle: {
-    fontSize: 18,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#ffffff',
-    marginBottom: 4,
-  },
-  bossSubtitle: {
-    fontSize: 14,
-    color: '#fecaca',
-  },
-  bossProgress: {
-    marginBottom: 16,
-  },
-  bossProgressBar: {
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-  bossProgressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  bossProgressText: {
-    fontSize: 12,
-    color: '#ffffff',
-    fontFamily: 'Cinzel_600SemiBold',
-  },
-  bossReward: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  bossRewardText: {
-    fontSize: 14,
-    color: '#fbbf24',
-    marginLeft: 8,
-    fontFamily: 'Cinzel_600SemiBold',
+  bottomPadding: {
+    height: 50,
   },
 });

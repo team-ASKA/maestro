@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, ImageBackground, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Sword, Shield, TrendingUp, Star, Crown, Coins } from 'lucide-react-native';
+import { Sword, Shield, TrendingUp, Star, Crown, Coins, Trophy, Target, Gift, Settings } from 'lucide-react-native';
 import { CharacterAvatar } from '@/components/CharacterAvatar';
 import { AttributeBar } from '@/components/AttributeBar';
 import { XPProgressBar } from '@/components/XPProgressBar';
 import { DailyCheckIn } from '@/components/DailyCheckIn';
-import { useFonts, Cinzel_400Regular, Cinzel_600SemiBold } from '@expo-google-fonts/cinzel';
+import { useFonts, Orbitron_400Regular, Orbitron_700Bold, Orbitron_900Black } from '@expo-google-fonts/orbitron';
 import { gamificationEngine } from '@/lib/gamificationEngine';
+
+const { width, height } = Dimensions.get('window');
 
 export default function CharacterProfile() {
   const [fontsLoaded] = useFonts({
-    Cinzel_400Regular,
-    Cinzel_600SemiBold,
+    Orbitron_400Regular,
+    Orbitron_700Bold,
+    Orbitron_900Black,
   });
 
   const [characterData, setCharacterData] = useState({
@@ -56,126 +59,145 @@ export default function CharacterProfile() {
   }
 
   return (
-    <LinearGradient
-      colors={['#0f172a', '#1e3a8a', '#3730a3']}
-      style={styles.container}
-    >
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Character Header */}
-        <View style={styles.headerContainer}>
-          <LinearGradient
-            colors={['#d4af37', '#fbbf24', '#d97706']}
-            style={styles.crownContainer}
-          >
-            <Crown size={24} color="#1e3a8a" />
-            <Text style={styles.levelText}>Level {characterData.level}</Text>
-          </LinearGradient>
+    <View style={styles.container}>
+      {/* Background with diamond pattern */}
+      <LinearGradient
+        colors={['#1a237e', '#3949ab', '#5c6bc0']}
+        style={styles.backgroundGradient}
+      >
+        {/* Header with character stats */}
+        <View style={styles.topHeader}>
+          <View style={styles.resourcesContainer}>
+            <View style={styles.resourceCard}>
+              <Text style={styles.resourceIcon}>💰</Text>
+              <Text style={styles.resourceValue}>{characterData.level}</Text>
+              <Text style={styles.resourceLabel}>LVL</Text>
+            </View>
+            
+            <View style={styles.resourceCard}>
+              <Text style={styles.resourceIcon}>⚡</Text>
+              <Text style={styles.resourceValue}>{characterData.currentXP}/{characterData.nextLevelXP}</Text>
+              <Text style={styles.resourceLabel}>XP</Text>
+            </View>
+            
+            <View style={styles.resourceCard}>
+              <Text style={styles.resourceIcon}>💎</Text>
+              <Text style={styles.resourceValue}>986</Text>
+              <Text style={styles.resourceLabel}>GEMS</Text>
+            </View>
+            
+            <TouchableOpacity style={styles.addButton}>
+              <Text style={styles.addButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
           
-          <CharacterAvatar level={characterData.level} />
-          
-          <Text style={styles.titleText}>Financial Warrior</Text>
-          
-          {/* Level Up Animation */}
-          <Animated.View
-            style={[
-              styles.levelUpOverlay,
-              {
-                opacity: levelUpAnimation,
-                transform: [
-                  {
-                    scale: levelUpAnimation.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.5, 1.2],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <Text style={styles.levelUpText}>LEVEL UP!</Text>
-          </Animated.View>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity style={styles.headerIconButton}>
+              <View style={styles.notificationBadge}>
+                <Text style={styles.badgeText}>2</Text>
+              </View>
+              <Gift size={24} color="#ffffff" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.headerIconButton}>
+              <Settings size={24} color="#ffffff" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* XP Progress */}
-        <View style={styles.xpContainer}>
-          <XPProgressBar
-            currentXP={characterData.currentXP}
-            nextLevelXP={characterData.nextLevelXP}
-            level={characterData.level}
-          />
+        {/* Character Portrait */}
+        <View style={styles.characterSection}>
+          <View style={styles.characterCard}>
+            <LinearGradient
+              colors={['#ff6b35', '#f7931e']}
+              style={styles.characterBackground}
+            >
+              <CharacterAvatar level={characterData.level} />
+              <View style={styles.characterInfo}>
+                <Text style={styles.characterName}>Financial Warrior</Text>
+                <Text style={styles.characterTitle}>Akatsuki</Text>
+              </View>
+              
+              <View style={styles.trophyContainer}>
+                <Trophy size={20} color="#ffd700" />
+                <Text style={styles.trophyCount}>7562</Text>
+              </View>
+            </LinearGradient>
+          </View>
         </View>
 
-        {/* Core Attributes */}
-        <View style={styles.attributesContainer}>
-          <Text style={styles.sectionTitle}>Core Attributes</Text>
-          
-          <AttributeBar
-            icon={<Sword size={20} color="#d4af37" />}
-            label="Financial Strength"
-            value={characterData.strength}
-            maxValue={100}
-            color="#10b981"
-            description={`Net Worth: $${characterData.totalWealth.toLocaleString()}`}
-          />
-          
-          <AttributeBar
-            icon={<Shield size={20} color="#d4af37" />}
-            label="Discipline"
-            value={characterData.discipline}
-            maxValue={100}
-            color="#3b82f6"
-            description={`${characterData.dailyStreak} day streak`}
-          />
-          
-          <AttributeBar
-            icon={<TrendingUp size={20} color="#d4af37" />}
-            label="Growth"
-            value={characterData.growth}
-            maxValue={100}
-            color="#8b5cf6"
-            description="Investment performance"
-          />
-        </View>
-
-        {/* Daily Check-in */}
-        <DailyCheckIn
-          streak={characterData.dailyStreak}
-          onCheckIn={handleDailyCheckIn}
-        />
-
-        {/* Quick Stats */}
-        <View style={styles.statsContainer}>
+        {/* Pass Royale / Achievement Section */}
+        <View style={styles.passSection}>
           <LinearGradient
-            colors={['#374151', '#4b5563']}
-            style={styles.statCard}
+            colors={['#ff9800', '#ff5722']}
+            style={styles.passCard}
           >
-            <Coins size={24} color="#d4af37" />
-            <Text style={styles.statValue}>$45,670</Text>
-            <Text style={styles.statLabel}>Total Wealth</Text>
-          </LinearGradient>
-          
-          <LinearGradient
-            colors={['#374151', '#4b5563']}
-            style={styles.statCard}
-          >
-            <Star size={24} color="#d4af37" />
-            <Text style={styles.statValue}>2,450</Text>
-            <Text style={styles.statLabel}>Experience</Text>
+            <View style={styles.passContent}>
+              <Text style={styles.passTitle}>Pass Royale</Text>
+              <View style={styles.passProgress}>
+                <Text style={styles.passLevel}>3</Text>
+                <Text style={styles.passSlash}>/</Text>
+                <Text style={styles.passMax}>10</Text>
+              </View>
+            </View>
+            <Crown size={24} color="#ffd700" />
           </LinearGradient>
         </View>
 
-        {/* Achievement Banner */}
-        <TouchableOpacity style={styles.achievementBanner}>
-          <LinearGradient
-            colors={['#d4af37', '#fbbf24']}
-            style={styles.achievementGradient}
-          >
-            <Text style={styles.achievementText}>🏆 Recent Achievement</Text>
-            <Text style={styles.achievementDesc}>Consistent Saver - 30 days</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </ScrollView>
-    </LinearGradient>
+        {/* Bottom Action Buttons */}
+        <View style={styles.actionGrid}>
+          <TouchableOpacity style={styles.actionButton}>
+            <LinearGradient
+              colors={['#4caf50', '#388e3c']}
+              style={styles.actionGradient}
+            >
+              <Sword size={28} color="#ffffff" />
+              <Text style={styles.actionLabel}>Budget Battle</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.actionButton}>
+            <LinearGradient
+              colors={['#2196f3', '#1976d2']}
+              style={styles.actionGradient}
+            >
+              <Target size={28} color="#ffffff" />
+              <Text style={styles.actionLabel}>Daily Bonus</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.actionButton}>
+            <LinearGradient
+              colors={['#ff9800', '#f57c00']}
+              style={styles.actionGradient}
+            >
+              <Trophy size={28} color="#ffffff" />
+              <Text style={styles.actionLabel}>Rewards</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+
+        {/* Level Up Animation */}
+        <Animated.View
+          style={[
+            styles.levelUpOverlay,
+            {
+              opacity: levelUpAnimation,
+              transform: [
+                {
+                  scale: levelUpAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 1.2],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <Text style={styles.levelUpText}>LEVEL UP!</Text>
+        </Animated.View>
+      </LinearGradient>
+    </View>
   );
 }
 
@@ -183,118 +205,249 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
+  backgroundGradient: {
     flex: 1,
-    paddingTop: 60,
+    paddingTop: 50,
   },
-  headerContainer: {
+  topHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 30,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
-  crownContainer: {
+  resourcesContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+  },
+  resourceCard: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginRight: 8,
+    minWidth: 70,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  resourceIcon: {
+    fontSize: 16,
+    marginBottom: 2,
+  },
+  resourceValue: {
+    fontSize: 12,
+    fontFamily: 'Orbitron_700Bold',
+    color: '#ffffff',
+    textAlign: 'center',
+  },
+  resourceLabel: {
+    fontSize: 8,
+    fontFamily: 'Orbitron_400Regular',
+    color: '#bbbbbb',
+    textAlign: 'center',
+  },
+  addButton: {
+    backgroundColor: '#4caf50',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 5,
+  },
+  addButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontFamily: 'Orbitron_700Bold',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIconButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 20,
-    marginBottom: 15,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+    position: 'relative',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: '#f44336',
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  badgeText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontFamily: 'Orbitron_700Bold',
+  },
+  characterSection: {
+    paddingHorizontal: 15,
+    marginTop: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  characterCard: {
+    borderRadius: 15,
+    overflow: 'hidden',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 15,
+  },
+  characterBackground: {
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    position: 'relative',
+  },
+  characterInfo: {
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  characterName: {
+    fontSize: 24,
+    fontFamily: 'Orbitron_900Black',
+    color: '#ffffff',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  characterTitle: {
+    fontSize: 16,
+    fontFamily: 'Orbitron_400Regular',
+    color: '#ffeb3b',
+    marginTop: 5,
+  },
+  trophyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 15,
+    right: 15,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  trophyCount: {
+    fontSize: 14,
+    fontFamily: 'Orbitron_700Bold',
+    color: '#ffd700',
+    marginLeft: 5,
+  },
+  passSection: {
+    paddingHorizontal: 15,
+    marginBottom: 20,
+  },
+  passCard: {
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
-  levelText: {
-    fontSize: 18,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#1e3a8a',
-    marginLeft: 8,
+  passContent: {
+    flex: 1,
   },
-  titleText: {
-    fontSize: 24,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#f3e8d3',
-    marginTop: 15,
+  passTitle: {
+    fontSize: 16,
+    fontFamily: 'Orbitron_700Bold',
+    color: '#ffffff',
+    marginBottom: 5,
+  },
+  passProgress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passLevel: {
+    fontSize: 20,
+    fontFamily: 'Orbitron_900Black',
+    color: '#ffffff',
+  },
+  passSlash: {
+    fontSize: 16,
+    fontFamily: 'Orbitron_400Regular',
+    color: '#ffffff',
+    marginHorizontal: 3,
+  },
+  passMax: {
+    fontSize: 16,
+    fontFamily: 'Orbitron_700Bold',
+    color: '#ffffff',
+  },
+  actionGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: 15,
+    justifyContent: 'space-between',
+    marginBottom: 30,
+  },
+  actionButton: {
+    flex: 0.3,
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  actionGradient: {
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionLabel: {
+    fontSize: 12,
+    fontFamily: 'Orbitron_700Bold',
+    color: '#ffffff',
     textAlign: 'center',
+    marginTop: 8,
   },
   levelUpOverlay: {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: [{ translateX: -75 }, { translateY: -25 }],
-    backgroundColor: 'rgba(212, 175, 55, 0.9)',
+    backgroundColor: 'rgba(255, 215, 0, 0.95)',
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: 15,
+    borderRadius: 15,
+    borderWidth: 3,
+    borderColor: '#ff6b35',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 20,
   },
   levelUpText: {
-    fontSize: 20,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#1e3a8a',
+    fontSize: 24,
+    fontFamily: 'Orbitron_900Black',
+    color: '#ff6b35',
     textAlign: 'center',
-  },
-  xpContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
-  },
-  attributesContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#d4af37',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    justifyContent: 'space-between',
-    marginBottom: 30,
-  },
-  statCard: {
-    flex: 0.48,
-    padding: 20,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#d4af37',
-  },
-  statValue: {
-    fontSize: 18,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#f3e8d3',
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#9ca3af',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  achievementBanner: {
-    marginHorizontal: 20,
-    marginBottom: 30,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#d4af37',
-  },
-  achievementGradient: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  achievementText: {
-    fontSize: 16,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#1e3a8a',
-  },
-  achievementDesc: {
-    fontSize: 12,
-    color: '#1e3a8a',
-    marginTop: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
 });

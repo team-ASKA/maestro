@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CircleCheck as CheckCircle, Circle } from 'lucide-react-native';
 
@@ -31,7 +31,7 @@ export function ProgressionPath({ milestones }: ProgressionPathProps) {
               }
               style={styles.milestoneGradient}
             >
-              <span style={styles.milestoneIcon}>{milestone.icon}</span>
+              <Text style={styles.milestoneIcon}>{milestone.icon}</Text>
               {milestone.completed && (
                 <View style={styles.completedBadge}>
                   <CheckCircle size={16} color="#10b981" />
