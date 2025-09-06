@@ -56,11 +56,11 @@ export default function FinancialJourneyMap() {
 
   // Optimized level generation with useMemo to prevent re-renders
   const levels = useMemo(() => {
-    const startDate = new Date('2024-09-06'); // Start from today (September 6, 2024)
+    const startDate = new Date(); // Start from today
     const generatedLevels: Level[] = [];
     
-    // Generate only necessary levels (current + 10 ahead)
-    for (let i = 0; i <= currentDay + 10; i++) {
+    // Generate levels (current + 10 ahead)
+    for (let i = 0; i <= Math.max(currentDay, 10); i++) {
       const levelDate = new Date(startDate);
       levelDate.setDate(startDate.getDate() + i);
       

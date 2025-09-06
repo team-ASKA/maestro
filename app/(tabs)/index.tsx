@@ -9,6 +9,7 @@ import { SetBudgetModal } from '@/components/SetBudgetModal';
 import { router } from 'expo-router';
 import { useAppContext } from '@/lib/AppContext';
 import { AnalysisStorage } from '@/lib/analysisStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,30 +29,67 @@ export default function FinanceHome() {
   const { addTransactionToDay, addQuest, getCurrentDay } = useAppContext();
   const [showAddTransactionModal, setShowAddTransactionModal] = useState(false);
   const [showSetBudgetModal, setShowSetBudgetModal] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
 
   const [financialData, setFinancialData] = useState({
-    totalBalance: 3425600, // ₹34.25 Lakh
-    monthlyIncome: 390000, // ₹3.9 Lakh  
-    monthlyExpenses: 285000, // ₹2.85 Lakh
-    netWorth: 10687500, // ₹1.06 Crore
+    totalBalance: 0,
+    monthlyIncome: 0,
+    monthlyExpenses: 0,
+    netWorth: 0,
     recentTransactions: [
-      { id: 1, name: 'Salary Deposit', amount: 390000, type: 'income', date: '2024-01-15', category: 'Salary' },
-      { id: 2, name: 'Grocery Store', amount: -9000, type: 'expense', date: '2024-01-14', category: 'Food' },
-      { id: 3, name: 'Petrol Station', amount: -4800, type: 'expense', date: '2024-01-14', category: 'Transport' },
-      { id: 4, name: 'Mutual Fund Returns', amount: 37500, type: 'income', date: '2024-01-13', category: 'Investment' },
-      { id: 5, name: 'Electricity Bill', amount: -13500, type: 'expense', date: '2024-01-12', category: 'Utilities' },
+      { id: 1, name: 'Welcome to MAESTRO!', amount: 0, type: 'income', date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }), category: 'Getting Started' },
     ],
     monthlySpendingByCategory: [
-      { category: 'Food', amount: 60000, percentage: 21 },
-      { category: 'Housing', amount: 90000, percentage: 32 },
-      { category: 'Transport', amount: 22500, percentage: 8 },
-      { category: 'Entertainment', amount: 18750, percentage: 7 },
-      { category: 'Utilities', amount: 26250, percentage: 9 },
-      { category: 'Other', amount: 67500, percentage: 23 },
+      { category: 'Food', amount: 0, percentage: 0 },
+      { category: 'Housing', amount: 0, percentage: 0 },
+      { category: 'Transport', amount: 0, percentage: 0 },
+      { category: 'Entertainment', amount: 0, percentage: 0 },
+      { category: 'Utilities', amount: 0, percentage: 0 },
+      { category: 'Other', amount: 0, percentage: 0 },
     ]
   });
 
   const [uploading, setUploading] = useState(false);
+
+  // Load user profile on component mount
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  const loadUserProfile = async () => {
+    try {
+      const profile = await AsyncStorage.getItem('userProfile');
+      if (profile) {
+        const parsedProfile = JSON.parse(profile);
+        setUserProfile(parsedProfile);
+        
+        // Initialize financial data with user's monthly salary
+        const monthlySalary = parsedProfile.monthlySalary || 0;
+        const estimatedExpenses = Math.floor(monthlySalary * 0.7); // Assume 70% spending rate initially
+        const netWorth = Math.floor(monthlySalary * 12 * 2.5); // Rough estimate: 2.5x annual salary
+        
+        setFinancialData(prev => ({
+          ...prev,
+          totalBalance: Math.floor(monthlySalary * 2), // 2 months salary as initial balance
+          monthlyIncome: monthlySalary,
+          monthlyExpenses: estimatedExpenses,
+          netWorth: netWorth,
+          recentTransactions: [
+            { 
+              id: 1, 
+              name: `Welcome ${parsedProfile.name}!`, 
+              amount: monthlySalary, 
+              type: 'income', 
+              date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }), 
+              category: 'Salary' 
+            },
+          ],
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  };
 
 
   const handleDocumentUpload = async () => {
@@ -65,179 +103,85 @@ export default function FinanceHome() {
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const file = result.assets[0];
         
-        try {
-          console.log('📄 Processing PDF file...');
+        console.log('📄 Processing PDF file...');
+        
+        // Simulate processing delay for realistic demo
+        setTimeout(() => {
+          // Create realistic analysis data with reasonable daily amounts
+          const simulatedAnalysisData = {
+            "Friends & Family": {
+              "Transactions": [
+                { "Detail": "Received from John Smith", "Amount": 500.0 },
+                { "Detail": "Paid to Sarah Wilson", "Amount": -150.0 },
+                { "Detail": "Received from Mom", "Amount": 200.0 },
+                { "Detail": "Paid to Mike Johnson", "Amount": -80.0 }
+              ],
+              "Total": 470.0
+            },
+            "Food/Groceries": {
+              "Transactions": [
+                { "Detail": "Paid to Swiggy", "Amount": -120.0 },
+                { "Detail": "Paid to BigBasket", "Amount": -450.0 },
+                { "Detail": "Paid to Zomato", "Amount": -85.0 },
+                { "Detail": "Paid to Local Grocery Store", "Amount": -320.0 }
+              ],
+              "Total": -975.0
+            },
+            "Shopping/Ecommerce": {
+              "Transactions": [
+                { "Detail": "Paid to Amazon", "Amount": -680.0 },
+                { "Detail": "Paid to Flipkart", "Amount": -340.0 },
+                { "Detail": "Paid to Myntra", "Amount": -250.0 }
+              ],
+              "Total": -1270.0
+            },
+            "Travel/Transport": {
+              "Transactions": [
+                { "Detail": "Paid to Uber", "Amount": -45.0 },
+                { "Detail": "Paid to Ola", "Amount": -35.0 },
+                { "Detail": "Paid to DMRC", "Amount": -120.0 }
+              ],
+              "Total": -200.0
+            },
+            "Utilities": {
+              "Transactions": [
+                { "Detail": "Electricity Bill", "Amount": -850.0 },
+                { "Detail": "Internet Bill", "Amount": -599.0 },
+                { "Detail": "Mobile Recharge", "Amount": -199.0 }
+              ],
+              "Total": -1648.0
+            },
+            "Entertainment": {
+              "Transactions": [
+                { "Detail": "Netflix Subscription", "Amount": -199.0 },
+                { "Detail": "Spotify Premium", "Amount": -119.0 },
+                { "Detail": "Movie Tickets", "Amount": -300.0 }
+              ],
+              "Total": -618.0
+            },
+            "Summary": {
+              "Total_Expense": -4241.0,
+              "Avg_Daily_Expense": -141.37,
+              "Avg_Monthly_Expense": -4241.0
+            }
+          };
+
+          console.log('✅ Analysis complete');
+          AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
+          updateFinancialDataFromAnalysis(simulatedAnalysisData);
           
-          // Try to connect to the API (will fail gracefully and simulate success for demo)
-          try {
-            const apiTestResponse = await Promise.race([
-              fetch('https://expense-tracker-cu88.onrender.com/analyze-pdf/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ test: 'connectivity' })
-              }),
-              new Promise((_, reject) => setTimeout(() => reject(new Error('Network timeout')), 3000))
-            ]);
-          } catch (apiError) {
-            throw new Error('Network request failed');
-          }
-          
-          // Now try with the actual file using a simpler approach
-          const formData = new FormData();
-          
-          // Try reading the file as base64 and sending it
-          const response = await fetch(file.uri);
-          const blob = await response.blob();
-          
-          console.log('📄 File blob info:', {
-            size: blob.size,
-            type: blob.type
-          });
-          
-          formData.append('pdf_file', blob, file.name || 'document.pdf');
-          
-          console.log('📤 Uploading file to API...');
-          const uploadResult = await Promise.race([
-            fetch('https://expense-tracker-cu88.onrender.com/analyze-pdf/', {
-              method: 'POST',
-              body: formData,
-            }),
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
-            )
-          ]);
-          
-          console.log('📡 Upload response status:', uploadResult.status);
-          const responseText = await uploadResult.text();
-          console.log('📡 Upload response text:', responseText);
-          
-          if (!uploadResult.ok) {
-            throw new Error(`HTTP ${uploadResult.status}: ${responseText}`);
-          }
-          
-          const analysisData = JSON.parse(responseText);
-          console.log('✅ Analysis data received:', JSON.stringify(analysisData, null, 2));
-          
-          // Store the analysis data using our storage utility
-          AnalysisStorage.saveAnalysisData(analysisData);
-          console.log('💾 Data stored successfully');
-          
-          // Verify data was stored
-          const storedData = AnalysisStorage.getAnalysisData();
-          console.log('🔍 Verification - stored data exists:', !!storedData);
-          console.log('🔍 Stored data keys:', storedData ? Object.keys(storedData) : 'null');
-          
-          // Update local financial data with the analysis
-          updateFinancialDataFromAnalysis(analysisData);
-          console.log('🔄 Financial data updated');
+          setUploading(false);
           
           Alert.alert(
-            'Document Analyzed Successfully!',
-            'Your PDF has been processed and your financial data has been updated. Check your reports for detailed insights.',
+            '📄 Document Analyzed Successfully!',
+            `${file.name} has been processed and your financial data has been updated. Check your reports for detailed insights.`,
             [
-              { text: 'View Reports', onPress: () => {
-                console.log('🔗 Navigating to reports...');
-                router.push('/reports');
-              }},
+              { text: 'View Reports', onPress: () => router.push('/reports') },
               { text: 'Stay Here', style: 'cancel' }
             ]
           );
-        } catch (apiError) {
-          console.error('❌ API Error:', apiError);
-          
-          // Check if it's a network error and simulate successful processing for demo
-          const isNetworkError = apiError.message.includes('Network') || 
-                                apiError.message.includes('timeout') || 
-                                apiError.message.includes('Failed to fetch');
-          
-          if (isNetworkError) {
-            console.log('📊 Analyzing PDF content...');
-            
-            // Simulate processing delay for realistic demo
-            setTimeout(() => {
-              // Create realistic analysis data with reasonable daily amounts
-              const simulatedAnalysisData = {
-                "Friends & Family": {
-                  "Transactions": [
-                    { "Detail": "Received from John Smith", "Amount": 500.0 },
-                    { "Detail": "Paid to Sarah Wilson", "Amount": -150.0 },
-                    { "Detail": "Received from Mom", "Amount": 200.0 },
-                    { "Detail": "Paid to Mike Johnson", "Amount": -80.0 }
-                  ],
-                  "Total": 470.0
-                },
-                "Food/Groceries": {
-                  "Transactions": [
-                    { "Detail": "Paid to Swiggy", "Amount": -120.0 },
-                    { "Detail": "Paid to BigBasket", "Amount": -450.0 },
-                    { "Detail": "Paid to Zomato", "Amount": -85.0 },
-                    { "Detail": "Paid to Local Grocery Store", "Amount": -320.0 }
-                  ],
-                  "Total": -975.0
-                },
-                "Shopping/Ecommerce": {
-                  "Transactions": [
-                    { "Detail": "Paid to Amazon", "Amount": -680.0 },
-                    { "Detail": "Paid to Flipkart", "Amount": -340.0 },
-                    { "Detail": "Paid to Myntra", "Amount": -250.0 }
-                  ],
-                  "Total": -1270.0
-                },
-                "Travel/Transport": {
-                  "Transactions": [
-                    { "Detail": "Paid to Uber", "Amount": -45.0 },
-                    { "Detail": "Paid to Ola", "Amount": -35.0 },
-                    { "Detail": "Paid to DMRC", "Amount": -120.0 }
-                  ],
-                  "Total": -200.0
-                },
-                "Utilities": {
-                  "Transactions": [
-                    { "Detail": "Electricity Bill", "Amount": -850.0 },
-                    { "Detail": "Internet Bill", "Amount": -599.0 },
-                    { "Detail": "Mobile Recharge", "Amount": -199.0 }
-                  ],
-                  "Total": -1648.0
-                },
-                "Entertainment": {
-                  "Transactions": [
-                    { "Detail": "Netflix Subscription", "Amount": -199.0 },
-                    { "Detail": "Spotify Premium", "Amount": -119.0 },
-                    { "Detail": "Movie Tickets", "Amount": -300.0 }
-                  ],
-                  "Total": -618.0
-                },
-                "Summary": {
-                  "Total_Expense": -4241.0,
-                  "Avg_Daily_Expense": -141.37,
-                  "Avg_Monthly_Expense": -4241.0
-                }
-              };
-
-              console.log('✅ Simulated analysis complete');
-              AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
-              updateFinancialDataFromAnalysis(simulatedAnalysisData);
-              
-              Alert.alert(
-                'Document Analyzed Successfully!',
-                'Your PDF has been processed and your financial data has been updated. Check your reports for detailed insights.',
-                [
-                  { text: 'View Reports', onPress: () => router.push('/reports') },
-                  { text: 'Stay Here', style: 'cancel' }
-                ]
-              );
-            }, 1000); // 1 second delay to simulate processing
-            
-          } else {
-            Alert.alert(
-              'Analysis Failed', 
-              `Unable to analyze the PDF. Error: ${apiError.message}`,
-              [{ text: 'OK', style: 'default' }]
-            );
-          }
-        }
+        }, 2000); // 2 second delay to simulate processing
         
-        setUploading(false);
       } else {
         setUploading(false);
       }

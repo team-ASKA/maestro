@@ -105,12 +105,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   ]);
 
   const getCurrentDay = () => {
-    // Calculate current day based on start date (Sept 6, 2024)
-    const startDate = new Date('2024-09-06');
-    const today = new Date();
-    const diffTime = Math.abs(today.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(1, diffDays);
+    // For simplicity, start from day 1 for all users
+    // In a real app, this could be stored per user in AsyncStorage
+    return 1;
   };
 
   const addTransactionToDay = (transaction: Transaction, dayNumber: number) => {
