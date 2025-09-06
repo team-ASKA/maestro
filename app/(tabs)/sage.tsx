@@ -83,11 +83,18 @@ export default function AISage() {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 150);
+      }, 300);
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     });
 
     return () => {
       keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
     };
   }, []);
 
@@ -96,12 +103,11 @@ export default function AISage() {
   }
 
   return (
-    <View style={styles.container}>
-      <KeyboardAvoidingView 
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'position' : 'height'}
-        keyboardVerticalOffset={0}
-      >
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+    >
         {/* Header */}
         <View style={styles.headerContainer}>
           <View style={styles.headerLeft}>
@@ -111,14 +117,6 @@ export default function AISage() {
               resizeMode="contain"
             />
             <Text style={styles.headerTitle}>SAGE</Text>
-          </View>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>FINANCIAL WISDOM</Text>
-            <Image
-              source={require('../../assets/images/divider.jpeg')}
-              style={styles.dividerImage}
-              resizeMode="stretch"
-            />
           </View>
         </View>
 
@@ -166,7 +164,7 @@ export default function AISage() {
               onFocus={() => {
                 setTimeout(() => {
                   scrollViewRef.current?.scrollToEnd({ animated: true });
-                }, 100);
+                }, 250);
               }}
               multiline
               maxLength={500}
@@ -185,8 +183,7 @@ export default function AISage() {
           </View>
         </View>
 
-      </KeyboardAvoidingView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -247,10 +244,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sageImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    marginBottom: 15,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    marginBottom: 20,
   },
   sageWelcomeText: {
     fontSize: 12,
@@ -265,7 +262,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   messagesContent: {
-    paddingBottom: 100,
+    paddingBottom: 20,
     flexGrow: 1,
   },
   typingContainer: {
@@ -290,8 +287,9 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 20,
-    paddingBottom: 30,
+    paddingTop: 15,
+    paddingBottom: Platform.OS === 'ios' ? 35 : 20,
+    backgroundColor: '#f5f5f5',
   },
   inputWrapper: {
     flexDirection: 'row',
