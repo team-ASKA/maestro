@@ -4,6 +4,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Upload, TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3, FileText, Plus, Wallet, CreditCard, Home as HomeIcon } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
 import * as DocumentPicker from 'expo-document-picker';
+import { AddTransactionModal } from '@/components/AddTransactionModal';
+import { router } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
@@ -19,6 +21,8 @@ export default function FinanceHome() {
   const [fontsLoaded] = useFonts({
     'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
+
+  const [showAddTransactionModal, setShowAddTransactionModal] = useState(false);
 
   const [financialData, setFinancialData] = useState({
     totalBalance: 3425600, // ₹34.25 Lakh
@@ -86,6 +90,52 @@ export default function FinanceHome() {
     return percentage;
   };
 
+  const handleAddTransaction = (transactionData: any) => {
+    const newTransaction = {
+      id: Date.now(),
+      name: transactionData.description,
+      category: transactionData.category,
+      amount: transactionData.type === 'income' ? transactionData.amount : -transactionData.amount,
+      type: transactionData.type,
+      date: transactionData.date.toLocaleDateString('en-IN', { 
+        day: '2-digit', 
+        month: 'short' 
+      }),
+    };
+
+    setFinancialData(prevData => ({
+      ...prevData,
+      recentTransactions: [newTransaction, ...prevData.recentTransactions],
+      totalBalance: transactionData.type === 'income' 
+        ? prevData.totalBalance + transactionData.amount
+        : prevData.totalBalance - transactionData.amount,
+      monthlyIncome: transactionData.type === 'income'
+        ? prevData.monthlyIncome + transactionData.amount
+        : prevData.monthlyIncome,
+      monthlyExpenses: transactionData.type === 'expense'
+        ? prevData.monthlyExpenses + transactionData.amount
+        : prevData.monthlyExpenses,
+    }));
+
+    Alert.alert('Quest Completed!', 'Your transaction has been added to the ledger.');
+  };
+
+  const handleViewReports = () => {
+    router.push('/reports');
+  };
+
+  const handleSetBudget = () => {
+    Alert.alert('Set Budget', 'Budget management feature coming soon!', [
+      { text: 'OK', style: 'default' }
+    ]);
+  };
+
+  const handleExportData = () => {
+    Alert.alert('Export Data', 'Data export feature coming soon!', [
+      { text: 'OK', style: 'default' }
+    ]);
+  };
+
 
   if (!fontsLoaded) {
     return null;
@@ -127,7 +177,10 @@ export default function FinanceHome() {
               />
             </View>
             <View style={styles.actionGrid}>
-              <TouchableOpacity style={styles.actionCard}>
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={() => setShowAddTransactionModal(true)}
+              >
                 <Image
                   source={require('../../assets/images/add_transction.jpeg')}
                   style={styles.actionImage}
@@ -136,7 +189,10 @@ export default function FinanceHome() {
                 <Text style={styles.actionText}>ADD TRANSACTION</Text>
               </TouchableOpacity>
               
-              <TouchableOpacity style={styles.actionCard}>
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={handleViewReports}
+              >
                 <Image
                   source={require('../../assets/images/view_reports.jpeg')}
                   style={styles.actionImage}
@@ -145,7 +201,10 @@ export default function FinanceHome() {
                 <Text style={styles.actionText}>VIEW REPORTS</Text>
               </TouchableOpacity>
               
-              <TouchableOpacity style={styles.actionCard}>
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={handleSetBudget}
+              >
                 <Image
                   source={require('../../assets/images/setBudget.jpeg')}
                   style={styles.actionImage}
@@ -154,7 +213,10 @@ export default function FinanceHome() {
                 <Text style={styles.actionText}>SET BUDGET</Text>
               </TouchableOpacity>
               
-              <TouchableOpacity style={styles.actionCard}>
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={handleExportData}
+              >
                 <Image
                   source={require('../../assets/images/ExportData.jpeg')}
                   style={styles.actionImage}
@@ -279,6 +341,12 @@ export default function FinanceHome() {
           </View>
         </ScrollView>
       </View>
+
+      <AddTransactionModal
+        visible={showAddTransactionModal}
+        onClose={() => setShowAddTransactionModal(false)}
+        onAddTransaction={handleAddTransaction}
+      />
     </View>
   );
 }
