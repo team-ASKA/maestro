@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert, Di
 import { Settings as SettingsIcon, User, Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap, ChevronRight, Bell, Shield, LogOut, Upload } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
 import * as DocumentPicker from 'expo-document-picker';
+import { AnalysisStorage } from '@/lib/analysisStorage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -31,19 +32,52 @@ export default function ProfileSettings() {
   const handleDocumentUpload = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ['application/pdf', 'text/csv', 'application/vnd.ms-excel'],
+        type: ['application/pdf'],
         copyToCacheDirectory: true,
       });
 
-      if (!result.canceled) {
-        Alert.alert(
-          'Document Uploaded Successfully!',
-          'Your financial document has been processed and added to your profile.',
-          [{ text: 'OK', style: 'default' }]
-        );
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        
+        // Create FormData for file upload using blob approach
+        const blob = await fetch(file.uri).then(r => r.blob());
+        const formData = new FormData();
+        formData.append('pdf_file', blob, file.name || 'document.pdf');
+
+        try {
+          // Call the expense analysis API
+          const response = await fetch('https://expense-tracker-cu88.onrender.com/analyze-pdf/', {
+            method: 'POST',
+            body: formData,
+            // Don't set Content-Type header - let the browser set it automatically for FormData
+          });
+
+          if (response.ok) {
+            const analysisData = await response.json();
+            
+            // Store the analysis data using our storage utility
+            AnalysisStorage.saveAnalysisData(analysisData);
+            
+            Alert.alert(
+              'Document Analyzed Successfully!',
+              'Your PDF has been processed. The financial data is now available in your reports.',
+              [{ text: 'OK', style: 'default' }]
+            );
+          } else {
+            throw new Error('Analysis failed');
+          }
+        } catch (apiError) {
+          console.error('API Error:', apiError);
+          Alert.alert(
+            'Analysis Failed', 
+            'Unable to analyze the PDF. Please check your internet connection and try again.',
+            [{ text: 'OK', style: 'default' }]
+          );
+        }
       }
     } catch (error) {
-      Alert.alert('Upload Failed', 'Please try again with a valid document.');
+      console.error('Upload Error:', error);
+      Alert.alert('Upload Failed', 'Please try again with a valid PDF file.');
     }
   };
 
