@@ -1,13 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Switch, Alert, Dimensions, Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Sword, Shield, TrendingUp, Star, Crown, Coins, Trophy, Target, Gift, Settings as SettingsIcon, Upload, Bell, Palette, LogOut, User, ChevronRight } from 'lucide-react-native';
-import { CharacterAvatar } from '@/components/CharacterAvatar';
-import { AttributeBar } from '@/components/AttributeBar';
-import { XPProgressBar } from '@/components/XPProgressBar';
-import { DailyCheckIn } from '@/components/DailyCheckIn';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert, Dimensions, Image } from 'react-native';
+import { Settings as SettingsIcon, User, Mail, Phone, MapPin, Calendar, Briefcase, GraduationCap, ChevronRight, Bell, Shield, LogOut, Upload } from 'lucide-react-native';
 import { useFonts } from 'expo-font';
-import { gamificationEngine } from '@/lib/gamificationEngine';
 import * as DocumentPicker from 'expo-document-picker';
 
 const { width, height } = Dimensions.get('window');
@@ -21,70 +15,61 @@ export default function ProfileSettings() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [dailyReminders, setDailyReminders] = useState(true);
   
-  const [characterData, setCharacterData] = useState({
-    level: 12,
-    currentXP: 2450,
-    nextLevelXP: 3000,
-    strength: 85, // Net Worth based
-    discipline: 72, // Daily logging consistency
-    growth: 91, // Investment activity
-    totalWealth: 45670,
-    dailyStreak: 15,
+  const [profileData, setProfileData] = useState({
+    name: 'Sparsh Kumar',
+    email: 'sparsh.kumar@email.com',
+    phone: '+91 98765 43210',
+    location: 'Mumbai, India',
+    joinDate: 'January 2024',
+    profession: 'Software Engineer',
+    education: 'Computer Science',
+    totalBalance: 3425600,
+    accountsLinked: 3,
+    transactionsLogged: 247,
   });
 
-  const [levelUpAnimation] = useState(new Animated.Value(0));
-
-  const handleDailyCheckIn = () => {
-    const xpGained = gamificationEngine.calculateDailyXP(characterData.dailyStreak);
-    const updatedData = gamificationEngine.addXP(characterData, xpGained);
-    
-    setCharacterData(updatedData);
-    
-    // Trigger level up animation if needed
-    if (updatedData.level > characterData.level) {
-      Animated.sequence([
-        Animated.timing(levelUpAnimation, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(levelUpAnimation, {
-          toValue: 0,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  };
-
-  const handleBankStatementUpload = async () => {
+  const handleDocumentUpload = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/pdf',
+        type: ['application/pdf', 'text/csv', 'application/vnd.ms-excel'],
         copyToCacheDirectory: true,
       });
 
       if (!result.canceled) {
         Alert.alert(
-          'Statement Uploaded',
-          'Your bank statement has been processed successfully! Your character attributes have been updated.',
-          [{ text: 'Excellent!', style: 'default' }]
+          'Document Uploaded Successfully!',
+          'Your financial document has been processed and added to your profile.',
+          [{ text: 'OK', style: 'default' }]
         );
       }
     } catch (error) {
-      Alert.alert('Upload Failed', 'Please try again with a valid PDF bank statement.');
+      Alert.alert('Upload Failed', 'Please try again with a valid document.');
     }
+  };
+
+  const handleEditProfile = () => {
+    Alert.alert('Edit Profile', 'Profile editing feature coming soon!', [
+      { text: 'OK', style: 'default' }
+    ]);
   };
 
   const handleLogout = () => {
     Alert.alert(
-      'End Your Quest?',
-      'Are you sure you want to log out of WealthCraft?',
+      'Logout',
+      'Are you sure you want to logout from MAESTRO?',
       [
-        { text: 'Stay', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         { text: 'Logout', style: 'destructive', onPress: () => {} },
       ]
     );
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0
+    }).format(amount);
   };
 
   if (!fontsLoaded) {
@@ -94,239 +79,251 @@ export default function ProfileSettings() {
   if (showSettings) {
     return (
       <View style={styles.container}>
-          {/* Settings Header */}
-          <View style={styles.settingsHeader}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={() => setShowSettings(false)}
-            >
-              <ChevronRight size={24} color="#ffffff" style={{ transform: [{ rotate: '180deg' }] }} />
-            </TouchableOpacity>
-            <Text style={styles.settingsTitle}>Settings</Text>
-            <View style={styles.placeholder} />
+        {/* Settings Header */}
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => setShowSettings(false)}
+          >
+            <ChevronRight size={20} color="#ffffff" style={{ transform: [{ rotate: '180deg' }] }} />
+          </TouchableOpacity>
+          <View style={styles.headerLeft}>
+            <Image 
+              source={require('../../assets/images/ruppe.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.headerTitle}>SETTINGS</Text>
+          </View>
+          <View style={styles.placeholder} />
+        </View>
+
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          {/* App Preferences */}
+          <View style={styles.settingsSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>APP PREFERENCES</Text>
+              <Image
+                source={require('../../assets/images/divider.jpeg')}
+                style={styles.dividerImage}
+                resizeMode="stretch"
+              />
+            </View>
+            
+            <View style={styles.settingCard}>
+              <View style={styles.settingRow}>
+                <View style={styles.settingLeft}>
+                  <Bell size={16} color="#000000" />
+                  <Text style={styles.settingText}>NOTIFICATIONS</Text>
+                </View>
+                <Switch
+                  value={notificationsEnabled}
+                  onValueChange={setNotificationsEnabled}
+                  trackColor={{ false: '#cccccc', true: '#10B981' }}
+                  thumbColor={notificationsEnabled ? '#ffffff' : '#666666'}
+                />
+              </View>
+              
+              <View style={styles.settingRow}>
+                <View style={styles.settingLeft}>
+                  <Calendar size={16} color="#000000" />
+                  <Text style={styles.settingText}>DAILY REMINDERS</Text>
+                </View>
+                <Switch
+                  value={dailyReminders}
+                  onValueChange={setDailyReminders}
+                  trackColor={{ false: '#cccccc', true: '#10B981' }}
+                  thumbColor={dailyReminders ? '#ffffff' : '#666666'}
+                />
+              </View>
+            </View>
           </View>
 
-          <ScrollView style={styles.settingsScrollView} showsVerticalScrollIndicator={false}>
-            {/* Game Settings */}
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Game Preferences</Text>
+          {/* Data Management */}
+          <View style={styles.settingsSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>DATA MANAGEMENT</Text>
+              <Image
+                source={require('../../assets/images/divider.jpeg')}
+                style={styles.dividerImage}
+                resizeMode="stretch"
+              />
+            </View>
+            
+            <View style={styles.settingCard}>
+              <TouchableOpacity style={styles.settingRow} onPress={handleDocumentUpload}>
+                <View style={styles.settingLeft}>
+                  <Upload size={16} color="#000000" />
+                  <Text style={styles.settingText}>UPLOAD DOCUMENTS</Text>
+                </View>
+                <ChevronRight size={16} color="#666666" />
+              </TouchableOpacity>
               
-              <View style={styles.settingItem}>
-                <LinearGradient
-                  colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.4)']}
-                  style={styles.settingGradient}
-                >
-                  <View style={styles.settingLeft}>
-                    <Bell size={20} color="#d69e2e" />
-                    <Text style={styles.settingText}>Push Notifications</Text>
-                  </View>
-                  <Switch
-                    value={notificationsEnabled}
-                    onValueChange={setNotificationsEnabled}
-                    trackColor={{ false: '#6b7280', true: '#d69e2e' }}
-                    thumbColor={notificationsEnabled ? '#fbbf24' : '#9ca3af'}
-                  />
-                </LinearGradient>
-              </View>
-
-              <View style={styles.settingItem}>
-                <LinearGradient
-                  colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.4)']}
-                  style={styles.settingGradient}
-                >
-                  <View style={styles.settingLeft}>
-                    <Crown size={20} color="#d69e2e" />
-                    <Text style={styles.settingText}>Daily Quest Reminders</Text>
-                  </View>
-                  <Switch
-                    value={dailyReminders}
-                    onValueChange={setDailyReminders}
-                    trackColor={{ false: '#6b7280', true: '#d69e2e' }}
-                    thumbColor={dailyReminders ? '#fbbf24' : '#9ca3af'}
-                  />
-                </LinearGradient>
-              </View>
-
-              <TouchableOpacity style={styles.settingItem} onPress={handleBankStatementUpload}>
-                <LinearGradient
-                  colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.4)']}
-                  style={styles.settingGradient}
-                >
-                  <View style={styles.settingLeft}>
-                    <Upload size={20} color="#d69e2e" />
-                    <Text style={styles.settingText}>Upload Bank Statement</Text>
-                  </View>
-                  <ChevronRight size={16} color="#9ca3af" />
-                </LinearGradient>
+              <TouchableOpacity style={styles.settingRow}>
+                <View style={styles.settingLeft}>
+                  <Shield size={16} color="#000000" />
+                  <Text style={styles.settingText}>DATA SECURITY</Text>
+                </View>
+                <Text style={styles.settingStatus}>ENCRYPTED</Text>
               </TouchableOpacity>
             </View>
+          </View>
 
-            {/* Privacy & Security */}
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Privacy & Security</Text>
-              
-              <TouchableOpacity style={styles.settingItem}>
-                <LinearGradient
-                  colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.4)']}
-                  style={styles.settingGradient}
-                >
-                  <View style={styles.settingLeft}>
-                    <Shield size={20} color="#d69e2e" />
-                    <Text style={styles.settingText}>Data Protection</Text>
-                  </View>
-                  <Text style={styles.settingSubtext}>Bank-level encryption</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-
-            {/* Account Actions */}
-            <View style={styles.sectionContainer}>
-              <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                <LinearGradient
-                  colors={['#dc2626', '#ef4444']}
-                  style={styles.logoutGradient}
-                >
-                  <LogOut size={20} color="#ffffff" />
-                  <Text style={styles.logoutText}>End Quest (Logout)</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+          {/* Account Actions */}
+          <View style={styles.settingsSection}>
+            <TouchableOpacity style={styles.logoutCard} onPress={handleLogout}>
+              <LogOut size={16} color="#DC2626" />
+              <Text style={styles.logoutText}>LOGOUT</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.topHeader}>
-          <View style={styles.headerLeft}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Image 
+            source={require('../../assets/images/ruppe.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.headerTitle}>PROFILE</Text>
+        </View>
+        <TouchableOpacity 
+          style={styles.settingsButton}
+          onPress={() => setShowSettings(true)}
+        >
+          <SettingsIcon size={20} color="#ffffff" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Profile Avatar & Info */}
+        <View style={styles.profileSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>USER PROFILE</Text>
             <Image
-              source={require('../../assets/images/ruppe.png')}
-              style={styles.logo}
-              resizeMode="contain"
+              source={require('../../assets/images/divider.jpeg')}
+              style={styles.dividerImage}
+              resizeMode="stretch"
             />
-            <Text style={styles.headerTitle}>PROFILE</Text>
           </View>
           
-          <TouchableOpacity 
-            style={styles.settingsIconButton}
-            onPress={() => setShowSettings(true)}
-          >
-            <SettingsIcon size={24} color="#000000" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Character Portrait */}
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.characterSection}>
-            <View style={styles.characterCard}>
-              <LinearGradient
-                colors={['#ff6b35', '#f7931e']}
-                style={styles.characterBackground}
-              >
-                <CharacterAvatar level={characterData.level} />
-                <View style={styles.characterInfo}>
-                  <Text style={styles.characterName}>Financial Warrior</Text>
-                  <Text style={styles.characterTitle}>Akatsuki</Text>
-                </View>
-                
-                <View style={styles.trophyContainer}>
-                  <Trophy size={20} color="#ffd700" />
-                  <Text style={styles.trophyCount}>7562</Text>
-                </View>
-              </LinearGradient>
+          <View style={styles.profileCard}>
+            <View style={styles.avatarSection}>
+              <View style={styles.avatar}>
+                <User size={40} color="#666666" />
+              </View>
+              <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
+                <Text style={styles.editButtonText}>EDIT</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.profileInfo}>
+              <Text style={styles.userName}>{profileData.name}</Text>
+              <Text style={styles.userTitle}>MEMBER SINCE {profileData.joinDate.toUpperCase()}</Text>
             </View>
           </View>
+        </View>
 
-          {/* XP Progress */}
-          <View style={styles.xpContainer}>
-            <XPProgressBar
-              currentXP={characterData.currentXP}
-              nextLevelXP={characterData.nextLevelXP}
-              level={characterData.level}
+        {/* Contact Information */}
+        <View style={styles.infoSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>CONTACT INFO</Text>
+            <Image
+              source={require('../../assets/images/divider.jpeg')}
+              style={styles.dividerImage}
+              resizeMode="stretch"
             />
           </View>
+          
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <Mail size={16} color="#000000" />
+              <Text style={styles.infoLabel}>EMAIL</Text>
+              <Text style={styles.infoValue}>{profileData.email}</Text>
+            </View>
+            
+            <View style={styles.infoRow}>
+              <Phone size={16} color="#000000" />
+              <Text style={styles.infoLabel}>PHONE</Text>
+              <Text style={styles.infoValue}>{profileData.phone}</Text>
+            </View>
+            
+            <View style={styles.infoRow}>
+              <MapPin size={16} color="#000000" />
+              <Text style={styles.infoLabel}>LOCATION</Text>
+              <Text style={styles.infoValue}>{profileData.location}</Text>
+            </View>
+          </View>
+        </View>
 
-          {/* Core Attributes */}
-          <View style={styles.attributesContainer}>
-            <Text style={styles.sectionTitle}>Core Attributes</Text>
-            
-            <AttributeBar
-              icon={<Sword size={20} color="#d69e2e" />}
-              label="Financial Strength"
-              value={characterData.strength}
-              maxValue={100}
-              color="#10b981"
-              description={`Net Worth: $${characterData.totalWealth.toLocaleString()}`}
-            />
-            
-            <AttributeBar
-              icon={<Shield size={20} color="#d69e2e" />}
-              label="Discipline"
-              value={characterData.discipline}
-              maxValue={100}
-              color="#3b82f6"
-              description={`${characterData.dailyStreak} day streak`}
-            />
-            
-            <AttributeBar
-              icon={<TrendingUp size={20} color="#d69e2e" />}
-              label="Growth"
-              value={characterData.growth}
-              maxValue={100}
-              color="#8b5cf6"
-              description="Investment performance"
+        {/* Professional Info */}
+        <View style={styles.infoSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>PROFESSIONAL</Text>
+            <Image
+              source={require('../../assets/images/divider.jpeg')}
+              style={styles.dividerImage}
+              resizeMode="stretch"
             />
           </View>
-
-          {/* Daily Check-in */}
-          <DailyCheckIn
-            streak={characterData.dailyStreak}
-            onCheckIn={handleDailyCheckIn}
-          />
-
-          {/* Quick Stats */}
-          <View style={styles.statsContainer}>
-            <LinearGradient
-              colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.4)']}
-              style={styles.statCard}
-            >
-              <Coins size={24} color="#d69e2e" />
-              <Text style={styles.statValue}>$45,670</Text>
-              <Text style={styles.statLabel}>Total Wealth</Text>
-            </LinearGradient>
+          
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <Briefcase size={16} color="#000000" />
+              <Text style={styles.infoLabel}>PROFESSION</Text>
+              <Text style={styles.infoValue}>{profileData.profession}</Text>
+            </View>
             
-            <LinearGradient
-              colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.4)']}
-              style={styles.statCard}
-            >
-              <Star size={24} color="#d69e2e" />
-              <Text style={styles.statValue}>2,450</Text>
-              <Text style={styles.statLabel}>Experience</Text>
-            </LinearGradient>
+            <View style={styles.infoRow}>
+              <GraduationCap size={16} color="#000000" />
+              <Text style={styles.infoLabel}>EDUCATION</Text>
+              <Text style={styles.infoValue}>{profileData.education}</Text>
+            </View>
           </View>
-        </ScrollView>
+        </View>
 
-        {/* Level Up Animation */}
-        <Animated.View
-          style={[
-            styles.levelUpOverlay,
-            {
-              opacity: levelUpAnimation,
-              transform: [
-                {
-                  scale: levelUpAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.5, 1.2],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <Text style={styles.levelUpText}>LEVEL UP!</Text>
-        </Animated.View>
+        {/* Account Stats */}
+        <View style={styles.statsSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>ACCOUNT STATISTICS</Text>
+            <Image
+              source={require('../../assets/images/divider.jpeg')}
+              style={styles.dividerImage}
+              resizeMode="stretch"
+            />
+          </View>
+          
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Text style={[styles.statValue, styles.incomeColor]}>{formatCurrency(profileData.totalBalance)}</Text>
+              <Text style={styles.statLabel}>TOTAL BALANCE</Text>
+            </View>
+            
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{profileData.accountsLinked}</Text>
+              <Text style={styles.statLabel}>ACCOUNTS LINKED</Text>
+            </View>
+          </View>
+          
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>{profileData.transactionsLogged}</Text>
+              <Text style={styles.statLabel}>TRANSACTIONS</Text>
+            </View>
+            
+            <View style={styles.statCard}>
+              <Text style={styles.statValue}>ACTIVE</Text>
+              <Text style={styles.statLabel}>STATUS</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -336,13 +333,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  topHeader: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
+    backgroundColor: '#f5f5f5',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -363,220 +361,212 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
-  resourcesContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  resourceCard: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  settingsButton: {
+    backgroundColor: '#000000',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginRight: 8,
-    minWidth: 70,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 2,
+    borderColor: '#333333',
+    shadowColor: '#000000',
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3,
   },
-  resourceIcon: {
-    fontSize: 16,
-    marginBottom: 2,
-  },
-  resourceValue: {
-    fontSize: 12,
-    fontFamily: 'Orbitron_700Bold',
-    color: '#ffffff',
-    textAlign: 'center',
-  },
-  resourceLabel: {
-    fontSize: 8,
-    fontFamily: 'Orbitron_400Regular',
-    color: '#bbbbbb',
-    textAlign: 'center',
-  },
-  settingsIconButton: {
-    backgroundColor: '#ffffff',
+  backButton: {
+    backgroundColor: '#000000',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#333333',
+    shadowColor: '#000000',
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  placeholder: {
     width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#cccccc',
   },
   scrollView: {
     flex: 1,
-    paddingTop: 10,
-  },
-  characterSection: {
-    paddingHorizontal: 15,
-    marginBottom: 20,
-  },
-  characterCard: {
-    borderRadius: 15,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 15,
-  },
-  characterBackground: {
-    paddingVertical: 30,
     paddingHorizontal: 20,
-    alignItems: 'center',
-    position: 'relative',
   },
-  characterInfo: {
-    alignItems: 'center',
-    marginTop: 15,
-  },
-  characterName: {
-    fontSize: 24,
-    fontFamily: 'Orbitron_900Black',
-    color: '#ffffff',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
-  },
-  characterTitle: {
-    fontSize: 16,
-    fontFamily: 'Orbitron_400Regular',
-    color: '#ffeb3b',
-    marginTop: 5,
-  },
-  trophyContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'absolute',
-    top: 15,
-    right: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  trophyCount: {
-    fontSize: 14,
-    fontFamily: 'Orbitron_700Bold',
-    color: '#ffd700',
-    marginLeft: 5,
-  },
-  xpContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
-  },
-  attributesContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
+  sectionHeader: {
+    marginBottom: 15,
   },
   sectionTitle: {
     fontSize: 14,
     fontFamily: 'Minecraftia',
     color: '#000000',
-    marginBottom: 15,
+    marginBottom: 8,
     letterSpacing: 3,
     textTransform: 'uppercase',
     textShadowColor: '#cccccc',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
-  statsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    justifyContent: 'space-between',
+  dividerImage: {
+    width: '30%',
+    height: 24,
+    alignSelf: 'flex-start',
+  },
+  // Profile Section
+  profileSection: {
+    marginTop: 20,
     marginBottom: 30,
+  },
+  profileCard: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  avatarSection: {
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#cccccc',
+    marginBottom: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  editButton: {
+    backgroundColor: '#000000',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#333333',
+  },
+  editButtonText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  profileInfo: {
+    alignItems: 'center',
+  },
+  userName: {
+    fontSize: 16,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  userTitle: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    color: '#666666',
+    marginTop: 4,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    textShadowColor: '#dddddd',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  // Info Sections
+  infoSection: {
+    marginBottom: 30,
+  },
+  infoCard: {
+    padding: 20,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  infoLabel: {
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
+    marginLeft: 12,
+    flex: 1,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  infoValue: {
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    color: '#666666',
+    letterSpacing: 1,
+    textShadowColor: '#dddddd',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  // Stats Section
+  statsSection: {
+    marginBottom: 30,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
   },
   statCard: {
     flex: 0.48,
     padding: 20,
-    borderRadius: 12,
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#d69e2e',
   },
   statValue: {
-    fontSize: 18,
-    fontFamily: 'Orbitron_700Bold',
-    color: '#ffffff',
-    marginTop: 8,
+    fontSize: 14,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
+    textAlign: 'center',
+    letterSpacing: 1,
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#bbbbbb',
-    marginTop: 4,
+    fontSize: 7,
+    fontFamily: 'Minecraftia',
+    color: '#666666',
+    marginTop: 6,
     textAlign: 'center',
-  },
-  levelUpOverlay: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -75 }, { translateY: -25 }],
-    backgroundColor: 'rgba(255, 215, 0, 0.95)',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderRadius: 15,
-    borderWidth: 3,
-    borderColor: '#ff6b35',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-    elevation: 20,
-  },
-  levelUpText: {
-    fontSize: 24,
-    fontFamily: 'Orbitron_900Black',
-    color: '#ff6b35',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    textShadowColor: '#dddddd',
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 0,
   },
   // Settings Styles
-  settingsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingTop: 50,
-    paddingBottom: 20,
-  },
-  backButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  settingsTitle: {
-    fontSize: 20,
-    fontFamily: 'Orbitron_700Bold',
-    color: '#ffffff',
-  },
-  placeholder: {
-    width: 40,
-  },
-  settingsScrollView: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  sectionContainer: {
+  settingsSection: {
     marginBottom: 30,
   },
-  settingItem: {
-    marginBottom: 12,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+  settingCard: {
+    padding: 15,
   },
-  settingGradient: {
+  settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eeeeee',
   },
   settingLeft: {
     flexDirection: 'row',
@@ -584,31 +574,49 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingText: {
-    fontSize: 16,
-    fontFamily: 'Orbitron_400Regular',
-    color: '#ffffff',
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     marginLeft: 12,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
-  settingSubtext: {
-    fontSize: 12,
-    color: '#bbbbbb',
+  settingStatus: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    color: '#666666',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    textShadowColor: '#dddddd',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
-  logoutButton: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#dc2626',
-  },
-  logoutGradient: {
+  logoutCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    padding: 15,
+    backgroundColor: '#ffffff',
+    borderWidth: 2,
+    borderColor: '#DC2626',
+    borderRadius: 8,
   },
   logoutText: {
-    fontSize: 16,
-    fontFamily: 'Orbitron_700Bold',
-    color: '#ffffff',
+    fontSize: 12,
+    fontFamily: 'Minecraftia',
+    color: '#DC2626',
     marginLeft: 8,
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+    textShadowColor: '#ffcccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  // Color styles
+  incomeColor: {
+    color: '#10B981',
   },
 });
