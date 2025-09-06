@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Send, User, Bot, Sparkles } from 'lucide-react-native';
 import { ChatMessage } from '@/components/ChatMessage';
-import { useFonts, Cinzel_400Regular, Cinzel_600SemiBold } from '@expo-google-fonts/cinzel';
+import { useFonts } from 'expo-font';
 
 interface Message {
   id: string;
@@ -14,8 +14,7 @@ interface Message {
 
 export default function AISage() {
   const [fontsLoaded] = useFonts({
-    Cinzel_400Regular,
-    Cinzel_600SemiBold,
+    'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
 
   const [messages, setMessages] = useState<Message[]>([
@@ -80,24 +79,29 @@ export default function AISage() {
   }
 
   return (
-    <LinearGradient
-      colors={['#0f172a', '#1e3a8a', '#3730a3']}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <KeyboardAvoidingView 
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         {/* Header */}
         <View style={styles.headerContainer}>
-          <LinearGradient
-            colors={['#d4af37', '#fbbf24']}
-            style={styles.headerBadge}
-          >
-            <Sparkles size={20} color="#1e3a8a" />
-            <Text style={styles.headerText}>Financial Sage</Text>
-          </LinearGradient>
-          <Text style={styles.subtitleText}>Ancient Wisdom for Modern Wealth</Text>
+          <View style={styles.headerLeft}>
+            <Image
+              source={require('../../assets/images/ruppe.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.headerTitle}>SAGE</Text>
+          </View>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>FINANCIAL WISDOM</Text>
+            <Image
+              source={require('../../assets/images/divider.jpeg')}
+              style={styles.dividerImage}
+              resizeMode="stretch"
+            />
+          </View>
         </View>
 
         {/* Messages */}
@@ -126,14 +130,11 @@ export default function AISage() {
 
         {/* Input */}
         <View style={styles.inputContainer}>
-          <LinearGradient
-            colors={['#374151', '#4b5563']}
-            style={styles.inputWrapper}
-          >
+          <View style={styles.inputWrapper}>
             <TextInput
               style={styles.textInput}
               placeholder="Ask the Sage for wisdom..."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="#666666"
               value={inputText}
               onChangeText={setInputText}
               multiline
@@ -148,14 +149,9 @@ export default function AISage() {
               onPress={handleSendMessage}
               disabled={!inputText.trim()}
             >
-              <LinearGradient
-                colors={['#d4af37', '#fbbf24']}
-                style={styles.sendGradient}
-              >
-                <Send size={20} color="#1e3a8a" />
-              </LinearGradient>
+              <Send size={20} color="#ffffff" />
             </TouchableOpacity>
-          </LinearGradient>
+          </View>
         </View>
 
         {/* Quick Questions */}
@@ -182,38 +178,58 @@ export default function AISage() {
           ))}
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
   },
   headerContainer: {
-    alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
   },
-  headerBadge: {
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginBottom: 10,
+    marginBottom: 15,
   },
-  headerText: {
-    fontSize: 18,
-    fontFamily: 'Cinzel_600SemiBold',
-    color: '#1e3a8a',
-    marginLeft: 8,
+  logo: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
   },
-  subtitleText: {
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
+    letterSpacing: 4,
+    textTransform: 'uppercase',
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  sectionHeader: {
+    marginBottom: 15,
+  },
+  sectionTitle: {
     fontSize: 14,
-    color: '#9ca3af',
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'Minecraftia',
+    color: '#000000',
+    marginBottom: 8,
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  dividerImage: {
+    width: '30%',
+    height: 24,
+    alignSelf: 'flex-start',
   },
   messagesContainer: {
     flex: 1,
@@ -231,14 +247,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     borderRadius: 16,
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#d4af37',
+    borderColor: '#cccccc',
   },
   typingText: {
-    fontSize: 14,
-    color: '#9ca3af',
+    fontSize: 12,
+    fontFamily: 'Minecraftia',
+    color: '#666666',
     marginLeft: 8,
-    fontStyle: 'italic',
+    letterSpacing: 1,
   },
   inputContainer: {
     paddingHorizontal: 20,
@@ -248,23 +266,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     padding: 12,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#d4af37',
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#cccccc',
   },
   textInput: {
     flex: 1,
-    fontSize: 16,
-    color: '#f3e8d3',
+    fontSize: 14,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
     maxHeight: 100,
     paddingVertical: 8,
+    letterSpacing: 1,
   },
   sendButton: {
     marginLeft: 12,
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  sendGradient: {
+    backgroundColor: '#000000',
+    borderRadius: 8,
     padding: 10,
   },
   quickQuestions: {
@@ -275,16 +294,18 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   quickQuestionButton: {
-    backgroundColor: 'rgba(55, 65, 81, 0.8)',
+    backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 16,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d4af37',
+    borderColor: '#cccccc',
   },
   quickQuestionText: {
-    fontSize: 12,
-    color: '#d4af37',
-    fontFamily: 'Cinzel_400Regular',
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
 });

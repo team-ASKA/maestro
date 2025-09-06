@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Switch, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Switch, Alert, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Sword, Shield, TrendingUp, Star, Crown, Coins, Trophy, Target, Gift, Settings as SettingsIcon, Upload, Bell, Palette, LogOut, User, ChevronRight } from 'lucide-react-native';
 import { CharacterAvatar } from '@/components/CharacterAvatar';
 import { AttributeBar } from '@/components/AttributeBar';
 import { XPProgressBar } from '@/components/XPProgressBar';
 import { DailyCheckIn } from '@/components/DailyCheckIn';
-import { useFonts, Orbitron_400Regular, Orbitron_700Bold, Orbitron_900Black } from '@expo-google-fonts/orbitron';
+import { useFonts } from 'expo-font';
 import { gamificationEngine } from '@/lib/gamificationEngine';
 import * as DocumentPicker from 'expo-document-picker';
 
@@ -14,9 +14,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function ProfileSettings() {
   const [fontsLoaded] = useFonts({
-    Orbitron_400Regular,
-    Orbitron_700Bold,
-    Orbitron_900Black,
+    'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
 
   const [showSettings, setShowSettings] = useState(false);
@@ -96,10 +94,6 @@ export default function ProfileSettings() {
   if (showSettings) {
     return (
       <View style={styles.container}>
-        <LinearGradient
-          colors={['#1a237e', '#3949ab', '#5c6bc0']}
-          style={styles.backgroundGradient}
-        >
           {/* Settings Header */}
           <View style={styles.settingsHeader}>
             <TouchableOpacity 
@@ -198,45 +192,28 @@ export default function ProfileSettings() {
               </TouchableOpacity>
             </View>
           </ScrollView>
-        </LinearGradient>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Background with diamond pattern */}
-      <LinearGradient
-        colors={['#1a237e', '#3949ab', '#5c6bc0']}
-        style={styles.backgroundGradient}
-      >
-        {/* Header with character stats */}
+        {/* Header */}
         <View style={styles.topHeader}>
-          <View style={styles.resourcesContainer}>
-            <View style={styles.resourceCard}>
-              <Text style={styles.resourceIcon}>💰</Text>
-              <Text style={styles.resourceValue}>{characterData.level}</Text>
-              <Text style={styles.resourceLabel}>LVL</Text>
-            </View>
-            
-            <View style={styles.resourceCard}>
-              <Text style={styles.resourceIcon}>⚡</Text>
-              <Text style={styles.resourceValue}>{characterData.currentXP}/{characterData.nextLevelXP}</Text>
-              <Text style={styles.resourceLabel}>XP</Text>
-            </View>
-            
-            <View style={styles.resourceCard}>
-              <Text style={styles.resourceIcon}>💎</Text>
-              <Text style={styles.resourceValue}>986</Text>
-              <Text style={styles.resourceLabel}>GEMS</Text>
-            </View>
+          <View style={styles.headerLeft}>
+            <Image
+              source={require('../../assets/images/ruppe.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.headerTitle}>PROFILE</Text>
           </View>
           
           <TouchableOpacity 
             style={styles.settingsIconButton}
             onPress={() => setShowSettings(true)}
           >
-            <SettingsIcon size={24} color="#ffffff" />
+            <SettingsIcon size={24} color="#000000" />
           </TouchableOpacity>
         </View>
 
@@ -350,7 +327,6 @@ export default function ProfileSettings() {
         >
           <Text style={styles.levelUpText}>LEVEL UP!</Text>
         </Animated.View>
-      </LinearGradient>
     </View>
   );
 }
@@ -358,17 +334,34 @@ export default function ProfileSettings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  backgroundGradient: {
-    flex: 1,
+    backgroundColor: '#f5f5f5',
   },
   topHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingTop: 50,
-    paddingBottom: 10,
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
+    letterSpacing: 4,
+    textTransform: 'uppercase',
+    textShadowColor: '#666666',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   resourcesContainer: {
     flexDirection: 'row',
@@ -402,12 +395,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   settingsIconButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#cccccc',
   },
   scrollView: {
     flex: 1,
@@ -476,11 +471,15 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontFamily: 'Orbitron_700Bold',
-    color: '#d69e2e',
-    marginBottom: 20,
-    textAlign: 'center',
+    fontSize: 14,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
+    marginBottom: 15,
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+    textShadowColor: '#cccccc',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
   },
   statsContainer: {
     flexDirection: 'row',
