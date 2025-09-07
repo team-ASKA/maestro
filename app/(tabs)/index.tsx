@@ -106,7 +106,7 @@ export default function FinanceHome() {
         console.log('📄 Processing PDF file...');
         
         // Simulate processing delay for realistic demo
-        setTimeout(() => {
+        setTimeout(async () => {
           // Create realistic analysis data with reasonable daily amounts
           const simulatedAnalysisData = {
             "Friends & Family": {
@@ -167,7 +167,7 @@ export default function FinanceHome() {
           };
 
           console.log('✅ Analysis complete');
-          AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
+          await AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
           updateFinancialDataFromAnalysis(simulatedAnalysisData);
           
           setUploading(false);

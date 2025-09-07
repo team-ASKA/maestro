@@ -1,78 +1,277 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image, Keyboard, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Send } from 'lucide-react-native';
+import { Send, Upload, FileText } from 'lucide-react-native';
 import { ChatMessage } from '@/components/ChatMessage';
 import { useFonts } from 'expo-font';
-
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'sage';
-  timestamp: Date;
-}
+import * as DocumentPicker from 'expo-document-picker';
+import { AnalysisStorage, ConversationMessage } from '@/lib/analysisStorage';
+import { APIService } from '@/lib/apiService';
+import { LLMTester } from '@/lib/testLLM';
 
 export default function AISage() {
   const [fontsLoaded] = useFonts({
     'Minecraftia': require('../../assets/minecraftia/Minecraftia-Regular.ttf'),
   });
 
-  const [messages, setMessages] = useState<Message[]>([]);
-
+  const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [hasFinancialData, setHasFinancialData] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showUploadPrompt, setShowUploadPrompt] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const sageResponses = {
-    investment: "Ah, the path of the investor! Like tending to a magical garden, your investments need time, patience, and regular care. Consider diversifying your portfolio across different realms - stocks, bonds, and perhaps some index funds. The key is consistent contributions, no matter how small. Even 10% of your income can grow into a mighty treasure over time!",
-    budget: "The art of budgeting is like managing your kingdom's treasury! Follow the ancient rule: 50% for needs (your castle's upkeep), 30% for wants (your adventures), and 20% for savings and investments (your future empire). Track every gold coin that enters and leaves your realm!",
-    debt: "Debt is like a persistent dragon that grows stronger when ignored! Attack it with the avalanche method - pay minimums on all debts, then throw everything extra at the smallest debt first. Once that dragon falls, move to the next. You'll gain momentum and confidence with each victory!",
-    saving: "Saving is the foundation of your financial fortress! Start with an emergency fund of 3-6 months of expenses - this is your magical shield against unexpected quests. Then, save for specific goals. Even small amounts, invested consistently, compound into great wealth through the magic of time!",
-    default: "Your question intrigues me, young adventurer! Remember, building wealth is not a sprint but a lifelong quest. Focus on increasing your income, reducing expenses, investing wisely, and protecting your assets. Each day you make progress, your financial character grows stronger. What specific aspect of your financial journey would you like to explore?"
+  // Load conversation history and check financial data on component mount
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  const loadInitialData = async () => {
+    try {
+      // Load conversation history
+      const history = await AnalysisStorage.getConversationHistory();
+      setMessages(history);
+
+      // Check if financial data exists
+      const hasData = await AnalysisStorage.hasAnalysisData();
+      setHasFinancialData(hasData);
+      
+      // If no conversation history, add initial greeting
+      if (history.length === 0) {
+        const initialMessage: ConversationMessage = {
+          id: '0',
+          text: hasData 
+            ? 'Greetings, young warrior! I am the Financial Sage, and I can see you have already shared your financial scrolls with me. I possess ancient wisdom about your spending patterns, investments, and budgeting. What financial quest shall we embark upon today?'
+            : 'Greetings, young warrior! I am the Financial Sage, your guide on this epic journey to wealth mastery. To provide you with the most powerful personalized advice, I encourage you to upload your bank statements or financial documents. This will unlock my full wisdom! What challenges do you face today?',
+          sender: 'sage',
+          timestamp: new Date(),
+          hasFinancialContext: hasData,
+        };
+        
+        const updatedMessages = [initialMessage];
+        setMessages(updatedMessages);
+        await AnalysisStorage.saveConversationHistory(updatedMessages);
+      }
+    } catch (error) {
+      console.error('Failed to load initial data:', error);
+    }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputText.trim() === '') return;
 
-    // If this is the first message, add initial sage greeting
-    if (messages.length === 0) {
-      const initialMessage: Message = {
-        id: '0',
-        text: 'Greetings, young warrior! I am the Financial Sage, your guide on this epic journey to wealth mastery. I possess ancient wisdom about investments, budgeting, and building your financial empire. What challenges do you face today?',
-        sender: 'sage',
-        timestamp: new Date(),
-      };
-      
-      setMessages([initialMessage]);
-    }
-
-    const userMessage: Message = {
+    const userMessage: ConversationMessage = {
       id: Date.now().toString(),
       text: inputText,
       sender: 'user',
       timestamp: new Date(),
+      hasFinancialContext: hasFinancialData,
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInputText('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const responseKey = Object.keys(sageResponses).find(key => 
-        inputText.toLowerCase().includes(key)
-      ) || 'default';
+    try {
+      // Check if user is asking for financial advice without data
+      const needsFinancialData = checkIfNeedsFinancialData(inputText);
+      
+      if (needsFinancialData && !hasFinancialData) {
+        // Show upload prompt
+        setShowUploadPrompt(true);
+        setIsTyping(false);
+        return;
+      }
 
-      const sageMessage: Message = {
+      // Get AI response with context
+      const aiResponse = await APIService.queryLLMWithContext(
+        inputText,
+        messages.slice(-5) // Send last 5 messages for context
+      );
+
+      const sageMessage: ConversationMessage = {
         id: (Date.now() + 1).toString(),
-        text: sageResponses[responseKey as keyof typeof sageResponses],
+        text: aiResponse,
         sender: 'sage',
         timestamp: new Date(),
+        hasFinancialContext: hasFinancialData,
       };
 
-      setMessages(prev => [...prev, sageMessage]);
+      const finalMessages = [...updatedMessages, sageMessage];
+      setMessages(finalMessages);
+      
+      // Save conversation history
+      await AnalysisStorage.saveConversationHistory(finalMessages);
+      
+    } catch (error) {
+      console.error('Failed to get AI response:', error);
+      
+      const errorMessage: ConversationMessage = {
+        id: (Date.now() + 1).toString(),
+        text: "Forgive me, young adventurer. The mystical connection seems disrupted. Please try your question again, and I shall consult the ancient scrolls of wisdom for you.",
+        sender: 'sage',
+        timestamp: new Date(),
+        hasFinancialContext: hasFinancialData,
+      };
+
+      const finalMessages = [...updatedMessages, errorMessage];
+      setMessages(finalMessages);
+      await AnalysisStorage.saveConversationHistory(finalMessages);
+    } finally {
       setIsTyping(false);
-    }, 2000);
+    }
+  };
+
+  const checkIfNeedsFinancialData = (query: string): boolean => {
+    const financialKeywords = [
+      'budget', 'spending', 'expense', 'save', 'saving', 'money', 
+      'transaction', 'income', 'salary', 'debt', 'loan', 'category',
+      'analysis', 'analyze', 'breakdown'
+    ];
+    
+    const lowerQuery = query.toLowerCase();
+    return financialKeywords.some(keyword => lowerQuery.includes(keyword));
+  };
+
+  const handleDocumentUpload = async () => {
+    if (isUploading) return;
+    
+    setIsUploading(true);
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['application/pdf'],
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        
+        Alert.alert(
+          '🔒 Safe & Secure Upload',
+          'Your financial document will be securely processed and analyzed. We use bank-level encryption and do not store your personal information permanently. The analysis helps provide personalized financial advice.',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => setIsUploading(false)
+            },
+            {
+              text: 'Continue Upload',
+              onPress: () => processDocument(file)
+            }
+          ]
+        );
+      } else {
+        setIsUploading(false);
+      }
+    } catch (error) {
+      setIsUploading(false);
+      console.error('Upload Error:', error);
+      Alert.alert('Upload Failed', 'Please try again with a valid PDF file.');
+    }
+  };
+
+  const processDocument = async (file: any) => {
+    try {
+      console.log('📄 Processing PDF file...');
+      
+      // Call the actual API
+      const analysisData = await APIService.analyzePDF(file.uri, file.name);
+      
+      setHasFinancialData(true);
+      setShowUploadPrompt(false);
+      
+      // Add success message to conversation
+      const successMessage: ConversationMessage = {
+        id: Date.now().toString(),
+        text: `Excellent! I have successfully analyzed your financial scrolls (${file.name}). Your spending patterns, transaction history, and financial insights are now part of my ancient wisdom. Ask me anything about your finances, and I shall provide personalized guidance based on your actual data!`,
+        sender: 'sage',
+        timestamp: new Date(),
+        hasFinancialContext: true,
+      };
+
+      const updatedMessages = [...messages, successMessage];
+      setMessages(updatedMessages);
+      await AnalysisStorage.saveConversationHistory(updatedMessages);
+      
+      Alert.alert(
+        '📄 Document Analyzed Successfully!',
+        `${file.name} has been processed. I can now provide personalized financial advice based on your actual spending patterns!`,
+        [{ text: 'Great!', style: 'default' }]
+      );
+      
+    } catch (error) {
+      console.error('Processing failed:', error);
+      
+      let errorTitle = 'Processing Failed';
+      let errorMessage = 'There was an issue analyzing your document.';
+      
+      if (error.message?.includes('timed out') || error.message?.includes('starting up')) {
+        errorTitle = 'Service Starting Up';
+        errorMessage = 'The PDF analysis service is starting up (this happens with free tier services). Please try again in 30-60 seconds.';
+      } else if (error.message?.includes('Network request failed') || error.message?.includes('internet connection')) {
+        errorTitle = 'Connection Issue';
+        errorMessage = 'Unable to reach the analysis service. Please check your internet connection and try again.';
+      } else {
+        errorMessage = 'There was an issue analyzing your document. Please try again or check if the PDF contains readable financial data.';
+      }
+      
+      Alert.alert(
+        errorTitle, 
+        errorMessage,
+        [
+          { text: 'Try Again', onPress: () => handleDocumentUpload() },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleUploadPromptResponse = (shouldUpload: boolean) => {
+    setShowUploadPrompt(false);
+    
+    if (shouldUpload) {
+      handleDocumentUpload();
+    } else {
+      // Add a message explaining limited functionality
+      const limitedMessage: ConversationMessage = {
+        id: Date.now().toString(),
+        text: "I understand, young warrior. I can still provide general financial wisdom, but my advice will be more powerful once you share your financial scrolls with me. Feel free to upload them anytime for personalized guidance!",
+        sender: 'sage',
+        timestamp: new Date(),
+        hasFinancialContext: false,
+      };
+
+      const updatedMessages = [...messages, limitedMessage];
+      setMessages(updatedMessages);
+      AnalysisStorage.saveConversationHistory(updatedMessages);
+    }
+    setIsTyping(false);
+  };
+
+  // Development helper function to test LLM integration
+  const handleTestLLM = async () => {
+    if (__DEV__) {
+      Alert.alert(
+        '🧪 Test LLM Integration',
+        'This will test the Azure OpenAI connection. Check console for detailed results.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Run Test', 
+            onPress: async () => {
+              console.log('🧪 Starting LLM tests...');
+              await LLMTester.runAllTests();
+              Alert.alert('Test Complete', 'Check console for detailed results');
+            }
+          }
+        ]
+      );
+    }
   };
 
   useEffect(() => {
@@ -118,6 +317,22 @@ export default function AISage() {
             />
             <Text style={styles.headerTitle}>SAGE</Text>
           </View>
+          
+          {/* Upload Button */}
+          <TouchableOpacity 
+            style={[styles.uploadButton, { opacity: isUploading ? 0.6 : 1 }]}
+            onPress={handleDocumentUpload}
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <FileText size={16} color="#ffffff" />
+            ) : (
+              <Upload size={16} color="#ffffff" />
+            )}
+            <Text style={styles.uploadButtonText}>
+              {isUploading ? 'ANALYZING...' : hasFinancialData ? 'RE-UPLOAD' : 'UPLOAD'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Messages with Sage Image */}
@@ -135,6 +350,16 @@ export default function AISage() {
               resizeMode="cover"
             />
             <Text style={styles.sageWelcomeText}>Ask the Sage for wisdom...</Text>
+            
+            {/* Development Test Button */}
+            {__DEV__ && (
+              <TouchableOpacity 
+                style={styles.testButton}
+                onPress={handleTestLLM}
+              >
+                <Text style={styles.testButtonText}>🧪 TEST LLM</Text>
+              </TouchableOpacity>
+            )}
           </View>
           
           {/* Chat Messages */}
@@ -146,6 +371,35 @@ export default function AISage() {
             <View style={styles.typingContainer}>
               <View style={styles.typingBubble}>
                 <Text style={styles.typingText}>The Sage is consulting ancient scrolls...</Text>
+              </View>
+            </View>
+          )}
+
+          {/* Upload Prompt Modal */}
+          {showUploadPrompt && (
+            <View style={styles.uploadPromptContainer}>
+              <View style={styles.uploadPromptBubble}>
+                <Text style={styles.uploadPromptTitle}>🔮 Enhanced Wisdom Awaits!</Text>
+                <Text style={styles.uploadPromptText}>
+                  To provide you with the most powerful personalized financial advice, I need to analyze your financial scrolls (bank statements/PDFs). 
+                  {'\n\n'}Your data is processed securely and safely - I use bank-level encryption and don't permanently store personal information.
+                  {'\n\n'}Would you like to upload your financial documents now?
+                </Text>
+                <View style={styles.uploadPromptButtons}>
+                  <TouchableOpacity 
+                    style={styles.uploadPromptButtonSecondary}
+                    onPress={() => handleUploadPromptResponse(false)}
+                  >
+                    <Text style={styles.uploadPromptButtonSecondaryText}>NOT NOW</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.uploadPromptButtonPrimary}
+                    onPress={() => handleUploadPromptResponse(true)}
+                  >
+                    <Upload size={14} color="#ffffff" />
+                    <Text style={styles.uploadPromptButtonPrimaryText}>UPLOAD SAFELY</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           )}
@@ -192,6 +446,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
@@ -199,7 +456,6 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
   },
   logo: {
     width: 24,
@@ -312,5 +568,123 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     borderRadius: 8,
     padding: 10,
+  },
+  // Upload Button Styles
+  uploadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#333333',
+  },
+  uploadButtonText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    marginLeft: 6,
+    textShadowColor: '#333333',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 0,
+  },
+  // Upload Prompt Styles
+  uploadPromptContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  uploadPromptBubble: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
+    maxWidth: '100%',
+  },
+  uploadPromptTitle: {
+    fontSize: 16,
+    fontFamily: 'Minecraftia',
+    color: '#000000',
+    textAlign: 'center',
+    marginBottom: 15,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  uploadPromptText: {
+    fontSize: 12,
+    fontFamily: 'Minecraftia',
+    color: '#333333',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 20,
+    letterSpacing: 1,
+  },
+  uploadPromptButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  uploadPromptButtonSecondary: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#cccccc',
+    alignItems: 'center',
+  },
+  uploadPromptButtonSecondaryText: {
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    color: '#666666',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  uploadPromptButtonPrimary: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#000000',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  uploadPromptButtonPrimaryText: {
+    fontSize: 10,
+    fontFamily: 'Minecraftia',
+    color: '#ffffff',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  // Test Button Styles (Development only)
+  testButton: {
+    marginTop: 10,
+    backgroundColor: '#ff6b6b',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#ff5252',
+  },
+  testButtonText: {
+    fontSize: 8,
+    fontFamily: 'Minecraftia',
+    color: '#ffffff',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    textAlign: 'center',
   },
 });
