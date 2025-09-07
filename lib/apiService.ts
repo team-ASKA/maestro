@@ -50,7 +50,8 @@ export class APIService {
       console.log('File Name:', fileName);
       
       // Try different field names that APIs commonly expect
-      const fieldNamesToTry = ['file', 'pdf', 'document', 'upload'];
+      // Based on error response, the API expects 'pdf_file'
+      const fieldNamesToTry = ['pdf_file', 'file', 'pdf', 'document', 'upload'];
       let lastError: Error | null = null;
       
       for (const fieldName of fieldNamesToTry) {
