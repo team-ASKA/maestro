@@ -65,6 +65,32 @@ export class LLMTester {
   }
 
   /**
+   * Test what the PDF analysis API expects
+   */
+  static async testPDFAnalysisAPIOptions(): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log('🧪 Testing PDF Analysis API OPTIONS...');
+      
+      const response = await fetch('https://expense-tracker-cu88.onrender.com/analyze-pdf/', {
+        method: 'OPTIONS',
+      });
+      
+      console.log('OPTIONS Response status:', response.status);
+      console.log('OPTIONS Response headers:', response.headers);
+      
+      if (response.ok) {
+        return { success: true, message: 'PDF Analysis API OPTIONS request successful' };
+      } else {
+        throw new Error(`OPTIONS returned status ${response.status}`);
+      }
+      
+    } catch (error) {
+      console.error('❌ PDF Analysis API OPTIONS test failed:', error);
+      return { success: false, message: `OPTIONS test failed: ${error.message}` };
+    }
+  }
+
+  /**
    * Test the PDF analysis API
    */
   static async testPDFAnalysisAPI(): Promise<{ success: boolean; message: string }> {
@@ -133,9 +159,15 @@ export class LLMTester {
     if (contextTest.error) console.log('Error:', contextTest.error);
     console.log('');
     
-    // Test 3: PDF Analysis API
+    // Test 3: PDF Analysis API OPTIONS
+    const pdfOptionsTest = await this.testPDFAnalysisAPIOptions();
+    console.log('Test 3 - PDF Analysis API OPTIONS:', pdfOptionsTest.success ? '✅ PASSED' : '❌ FAILED');
+    console.log('Message:', pdfOptionsTest.message);
+    console.log('');
+    
+    // Test 4: PDF Analysis API
     const pdfTest = await this.testPDFAnalysisAPI();
-    console.log('Test 3 - PDF Analysis API:', pdfTest.success ? '✅ PASSED' : '❌ FAILED');
+    console.log('Test 4 - PDF Analysis API:', pdfTest.success ? '✅ PASSED' : '❌ FAILED');
     console.log('Message:', pdfTest.message);
     console.log('');
     

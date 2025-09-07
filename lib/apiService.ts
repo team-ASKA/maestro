@@ -7,54 +7,106 @@ export class APIService {
   private static readonly AZURE_OPENAI_ENDPOINT = `${API_CONFIG.AZURE_OPENAI.ENDPOINT}openai/deployments/${API_CONFIG.AZURE_OPENAI.DEPLOYMENT_NAME}/chat/completions?api-version=${API_CONFIG.AZURE_OPENAI.API_VERSION}`;
 
   /**
+   * Try different upload formats for PDF analysis
+   */
+  private static async tryPDFUpload(fileUri: string, fileName: string, fieldName: string = 'file'): Promise<Response> {
+    const formData = new FormData();
+    
+    const fileObject = {
+      uri: fileUri,
+      type: 'application/pdf',
+      name: fileName,
+    };
+    
+    formData.append(fieldName, fileObject as any);
+    
+    console.log(`📋 Trying upload with field name: ${fieldName}`);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    try {
+      const response = await fetch(this.EXPENSE_TRACKER_API, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  }
+
+  /**
    * Upload PDF to expense tracker API and get analysis
    */
   static async analyzePDF(fileUri: string, fileName: string): Promise<AnalysisData> {
     try {
       console.log('📤 Uploading PDF to analysis API...');
+      console.log('File URI:', fileUri);
+      console.log('File Name:', fileName);
       
-      // Create FormData for file upload
-      const formData = new FormData();
-      formData.append('file', {
-        uri: fileUri,
-        type: 'application/pdf',
-        name: fileName,
-      } as any);
-
-      // Add timeout to prevent hanging on sleeping services
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-      try {
-        const response = await fetch(this.EXPENSE_TRACKER_API, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          body: formData,
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
+      // Try different field names that APIs commonly expect
+      const fieldNamesToTry = ['file', 'pdf', 'document', 'upload'];
+      let lastError: Error | null = null;
+      
+      for (const fieldName of fieldNamesToTry) {
+        try {
+          console.log(`🔄 Attempting upload with field name: ${fieldName}`);
+          
+          const response = await this.tryPDFUpload(fileUri, fileName, fieldName);
+          
+          console.log('📡 Response status:', response.status);
+          
+          if (response.ok) {
+            const analysisData = await response.json();
+            console.log('✅ PDF analysis received from API:', analysisData);
+            
+            // Validate and structure the response
+            const structuredData = this.validateAndStructureAnalysisData(analysisData);
+            
+            // Save to storage
+            await AnalysisStorage.saveAnalysisData(structuredData);
+            
+            return structuredData;
+          } else {
+            // Get response text for better error debugging
+            let errorText = '';
+            try {
+              errorText = await response.text();
+              console.log(`❌ Error response body for ${fieldName}:`, errorText);
+            } catch (e) {
+              console.log(`❌ Could not read error response body for ${fieldName}`);
+            }
+            
+            const error = new Error(`API request failed with status ${response.status}${errorText ? `: ${errorText}` : ''}`);
+            lastError = error;
+            
+            // If it's a 422, try the next field name
+            if (response.status === 422) {
+              console.log(`⚠️ 422 error with ${fieldName}, trying next field name...`);
+              continue;
+            } else {
+              // For other errors, don't continue trying
+              throw error;
+            }
+          }
+        } catch (error) {
+          console.log(`❌ Upload failed with field name ${fieldName}:`, error.message);
+          lastError = error;
+          
+          // If it's not a 422 error, don't continue trying
+          if (!error.message?.includes('422')) {
+            throw error;
+          }
         }
-
-        const analysisData = await response.json();
-        console.log('✅ PDF analysis received from API');
-        
-        // Validate and structure the response
-        const structuredData = this.validateAndStructureAnalysisData(analysisData);
-        
-        // Save to storage
-        await AnalysisStorage.saveAnalysisData(structuredData);
-        
-        return structuredData;
-      } catch (fetchError) {
-        clearTimeout(timeoutId);
-        throw fetchError;
       }
+      
+      // If we get here, all field names failed
+      throw lastError || new Error('All upload attempts failed');
       
     } catch (error) {
       console.error('❌ PDF analysis failed:', error);
@@ -66,6 +118,11 @@ export class APIService {
       
       if (error.message?.includes('Network request failed')) {
         throw new Error('Unable to reach PDF analysis service. Please check your internet connection or try again later.');
+      }
+      
+      // Handle 422 errors specifically
+      if (error.message?.includes('422')) {
+        throw new Error('The PDF file format is not supported or the file is corrupted. Please ensure you are uploading a valid PDF file with readable text.');
       }
       
       throw new Error(`Failed to analyze PDF: ${error.message || 'Unknown error'}`);
