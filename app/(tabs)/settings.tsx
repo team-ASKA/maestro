@@ -99,7 +99,7 @@ export default function ProfileSettings() {
           };
 
           console.log('✅ Analysis complete');
-          AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
+          await AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
           
           Alert.alert(
             '📄 Document Analyzed Successfully!',

@@ -167,7 +167,7 @@ export default function FinanceHome() {
           };
 
           console.log('✅ Analysis complete');
-          AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
+          await AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
           updateFinancialDataFromAnalysis(simulatedAnalysisData);
           
           setUploading(false);
