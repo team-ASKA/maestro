@@ -73,7 +73,7 @@ export default function ProfileSettings() {
         console.log('📄 Processing PDF file...');
         
         // Simulate processing delay for realistic demo
-        setTimeout(() => {
+        setTimeout(async () => {
           // Create realistic analysis data
           const simulatedAnalysisData = {
             "Food/Groceries": {
