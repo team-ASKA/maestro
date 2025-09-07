@@ -204,10 +204,27 @@ export default function AISage() {
       
     } catch (error) {
       console.error('Processing failed:', error);
+      
+      let errorTitle = 'Processing Failed';
+      let errorMessage = 'There was an issue analyzing your document.';
+      
+      if (error.message?.includes('timed out') || error.message?.includes('starting up')) {
+        errorTitle = 'Service Starting Up';
+        errorMessage = 'The PDF analysis service is starting up (this happens with free tier services). Please try again in 30-60 seconds.';
+      } else if (error.message?.includes('Network request failed') || error.message?.includes('internet connection')) {
+        errorTitle = 'Connection Issue';
+        errorMessage = 'Unable to reach the analysis service. Please check your internet connection and try again.';
+      } else {
+        errorMessage = 'There was an issue analyzing your document. Please try again or check if the PDF contains readable financial data.';
+      }
+      
       Alert.alert(
-        'Processing Failed', 
-        'There was an issue analyzing your document. Please try again or check if the PDF contains readable financial data.',
-        [{ text: 'OK', style: 'default' }]
+        errorTitle, 
+        errorMessage,
+        [
+          { text: 'Try Again', onPress: () => handleDocumentUpload() },
+          { text: 'Cancel', style: 'cancel' }
+        ]
       );
     } finally {
       setIsUploading(false);

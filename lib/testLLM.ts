@@ -71,22 +71,45 @@ export class LLMTester {
     try {
       console.log('🧪 Testing PDF Analysis API connection...');
       
-      // This is a basic connectivity test - in real usage, a file would be uploaded
-      const response = await fetch('https://expense-tracker-cu88.onrender.com/', {
-        method: 'GET',
-      });
+      // Test with a timeout to avoid hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
-      if (response.ok || response.status === 404) {
-        // 404 is expected for GET request to upload endpoint
-        console.log('✅ PDF Analysis API is reachable');
-        return { success: true, message: 'PDF Analysis API is reachable and ready for file uploads' };
-      } else {
-        throw new Error(`API returned status ${response.status}`);
+      try {
+        // This is a basic connectivity test - in real usage, a file would be uploaded
+        const response = await fetch('https://expense-tracker-cu88.onrender.com/', {
+          method: 'GET',
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok || response.status === 404 || response.status === 405) {
+          // 404/405 are expected for GET request to upload endpoint
+          console.log('✅ PDF Analysis API is reachable');
+          return { success: true, message: 'PDF Analysis API is reachable and ready for file uploads' };
+        } else {
+          throw new Error(`API returned status ${response.status}`);
+        }
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        throw fetchError;
       }
       
     } catch (error) {
       console.error('❌ PDF Analysis API test failed:', error);
-      return { success: false, message: `PDF Analysis API test failed: ${error.message}` };
+      
+      if (error.name === 'AbortError') {
+        return { 
+          success: false, 
+          message: 'PDF Analysis API test timed out (API may be sleeping on free tier - this is normal)' 
+        };
+      }
+      
+      return { 
+        success: false, 
+        message: `PDF Analysis API test failed: ${error.message}. Note: This may be normal if the service is sleeping on free tier.` 
+      };
     }
   }
 

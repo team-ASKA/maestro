@@ -21,30 +21,53 @@ export class APIService {
         name: fileName,
       } as any);
 
-      const response = await fetch(this.EXPENSE_TRACKER_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-      });
+      // Add timeout to prevent hanging on sleeping services
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+      try {
+        const response = await fetch(this.EXPENSE_TRACKER_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          body: formData,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const analysisData = await response.json();
+        console.log('✅ PDF analysis received from API');
+        
+        // Validate and structure the response
+        const structuredData = this.validateAndStructureAnalysisData(analysisData);
+        
+        // Save to storage
+        await AnalysisStorage.saveAnalysisData(structuredData);
+        
+        return structuredData;
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        throw fetchError;
       }
-
-      const analysisData = await response.json();
-      console.log('✅ PDF analysis received from API');
       
-      // Validate and structure the response
-      const structuredData = this.validateAndStructureAnalysisData(analysisData);
-      
-      // Save to storage
-      await AnalysisStorage.saveAnalysisData(structuredData);
-      
-      return structuredData;
     } catch (error) {
       console.error('❌ PDF analysis failed:', error);
+      
+      // If it's a timeout or network error, provide a more helpful message
+      if (error.name === 'AbortError') {
+        throw new Error('PDF analysis timed out. The service may be starting up (free tier services sleep when inactive). Please try again in a moment.');
+      }
+      
+      if (error.message?.includes('Network request failed')) {
+        throw new Error('Unable to reach PDF analysis service. Please check your internet connection or try again later.');
+      }
+      
       throw new Error(`Failed to analyze PDF: ${error.message || 'Unknown error'}`);
     }
   }
