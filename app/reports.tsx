@@ -33,33 +33,43 @@ export default function ReportsScreen() {
   // Add focus listener to refresh data when coming back to this screen
   useEffect(() => {
     const unsubscribe = router.canGoBack() ? 
-      // Add a simple interval to check for new data every 2 seconds when screen is active
-      setInterval(() => {
-        const currentData = AnalysisStorage.getAnalysisData();
-        if (currentData && currentData !== analysisData) {
-          loadAnalysisData();
+      // Add a simple interval to check for new data every 3 seconds when screen is active
+      setInterval(async () => {
+        try {
+          const currentData = await AnalysisStorage.getAnalysisData();
+          if (currentData && currentData !== analysisData) {
+            loadAnalysisData();
+          }
+        } catch (error) {
+          console.error('Error checking for data updates:', error);
         }
-      }, 2000) : null;
+      }, 3000) : null;
 
     return () => {
       if (unsubscribe) clearInterval(unsubscribe);
     };
   }, [analysisData]);
 
-  const loadAnalysisData = () => {
+  const loadAnalysisData = async () => {
     console.log('📊 Reports: Loading analysis data...');
-    // Load analysis data using storage utility
-    const data = AnalysisStorage.getAnalysisData();
-    console.log('📊 Reports: Retrieved data:', data ? 'Data found' : 'No data');
-    console.log('📊 Reports: Data keys:', data ? Object.keys(data) : 'null');
-    
-    if (data) {
-      console.log('📊 Reports: Setting analysis data and processing...');
-      setAnalysisData(data);
-      processAnalysisData(data);
-    } else {
-      console.log('📊 Reports: No data found, using mock data');
-      // Use mock data if no analysis data is available
+    try {
+      // Load analysis data using async storage utility
+      const data = await AnalysisStorage.getAnalysisData();
+      console.log('📊 Reports: Retrieved data:', data ? 'Data found' : 'No data');
+      console.log('📊 Reports: Data keys:', data ? Object.keys(data) : 'null');
+      
+      if (data) {
+        console.log('📊 Reports: Setting analysis data and processing...');
+        setAnalysisData(data);
+        processAnalysisData(data);
+      } else {
+        console.log('📊 Reports: No data found, using mock data');
+        // Use mock data if no analysis data is available
+        setMockData();
+      }
+    } catch (error) {
+      console.error('❌ Reports: Error loading analysis data:', error);
+      console.log('📊 Reports: Error occurred, using mock data');
       setMockData();
     }
   };

@@ -4,6 +4,7 @@ import { Settings as SettingsIcon, User, Mail, Phone, MapPin, Calendar, Briefcas
 import { useFonts } from 'expo-font';
 import * as DocumentPicker from 'expo-document-picker';
 import { AnalysisStorage } from '@/lib/analysisStorage';
+import { APIService } from '@/lib/apiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
@@ -72,41 +73,45 @@ export default function ProfileSettings() {
         
         console.log('📄 Processing PDF file...');
         
-        // Simulate processing delay for realistic demo
-        setTimeout(async () => {
-          // Create realistic analysis data
-          const simulatedAnalysisData = {
-            "Food/Groceries": {
-              "Transactions": [
-                { "Detail": "Paid to Swiggy", "Amount": -120.0 },
-                { "Detail": "Paid to BigBasket", "Amount": -450.0 },
-                { "Detail": "Paid to Zomato", "Amount": -85.0 }
-              ],
-              "Total": -655.0
-            },
-            "Shopping/Ecommerce": {
-              "Transactions": [
-                { "Detail": "Paid to Amazon", "Amount": -680.0 },
-                { "Detail": "Paid to Flipkart", "Amount": -340.0 }
-              ],
-              "Total": -1020.0
-            },
-            "Summary": {
-              "Total_Expense": -1675.0,
-              "Avg_Daily_Expense": -55.83,
-              "Avg_Monthly_Expense": -1675.0
-            }
-          };
-
+        try {
+          // Call the real API service
+          const analysisData = await APIService.analyzePDF(file.uri, file.name);
+          
           console.log('✅ Analysis complete');
-          await AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
           
           Alert.alert(
             '📄 Document Analyzed Successfully!',
-            `${file.name} has been processed. The financial data is now available in your reports.`,
+            `${file.name} has been processed. The financial data is now available in your reports and sage chat.`,
             [{ text: 'OK', style: 'default' }]
           );
-        }, 1500); // 1.5 second delay to simulate processing
+        } catch (error) {
+          console.error('❌ PDF analysis failed:', error);
+          
+          let errorTitle = 'Processing Failed';
+          let errorMessage = 'There was an issue analyzing your document.';
+          
+          if (error.message?.includes('timed out') || error.message?.includes('starting up')) {
+            errorTitle = 'Service Starting Up';
+            errorMessage = 'The PDF analysis service is starting up (this happens with free tier services). Please try again in 30-60 seconds.';
+          } else if (error.message?.includes('Network request failed') || error.message?.includes('internet connection')) {
+            errorTitle = 'Connection Issue';
+            errorMessage = 'Unable to reach the analysis service. Please check your internet connection and try again.';
+          } else if (error.message?.includes('422')) {
+            errorTitle = 'File Format Issue';
+            errorMessage = 'The PDF file format is not supported or the file is corrupted. Please ensure you are uploading a valid PDF file with readable text.';
+          } else {
+            errorMessage = 'There was an issue analyzing your document. Please try again or check if the PDF contains readable financial data.';
+          }
+          
+          Alert.alert(
+            errorTitle, 
+            errorMessage,
+            [
+              { text: 'Try Again', onPress: () => handleDocumentUpload() },
+              { text: 'Cancel', style: 'cancel' }
+            ]
+          );
+        }
       }
     } catch (error) {
       console.error('Upload Error:', error);

@@ -9,6 +9,7 @@ import { SetBudgetModal } from '@/components/SetBudgetModal';
 import { router } from 'expo-router';
 import { useAppContext } from '@/lib/AppContext';
 import { AnalysisStorage } from '@/lib/analysisStorage';
+import { APIService } from '@/lib/apiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
@@ -105,70 +106,12 @@ export default function FinanceHome() {
         
         console.log('📄 Processing PDF file...');
         
-        // Simulate processing delay for realistic demo
-        setTimeout(async () => {
-          // Create realistic analysis data with reasonable daily amounts
-          const simulatedAnalysisData = {
-            "Friends & Family": {
-              "Transactions": [
-                { "Detail": "Received from John Smith", "Amount": 500.0 },
-                { "Detail": "Paid to Sarah Wilson", "Amount": -150.0 },
-                { "Detail": "Received from Mom", "Amount": 200.0 },
-                { "Detail": "Paid to Mike Johnson", "Amount": -80.0 }
-              ],
-              "Total": 470.0
-            },
-            "Food/Groceries": {
-              "Transactions": [
-                { "Detail": "Paid to Swiggy", "Amount": -120.0 },
-                { "Detail": "Paid to BigBasket", "Amount": -450.0 },
-                { "Detail": "Paid to Zomato", "Amount": -85.0 },
-                { "Detail": "Paid to Local Grocery Store", "Amount": -320.0 }
-              ],
-              "Total": -975.0
-            },
-            "Shopping/Ecommerce": {
-              "Transactions": [
-                { "Detail": "Paid to Amazon", "Amount": -680.0 },
-                { "Detail": "Paid to Flipkart", "Amount": -340.0 },
-                { "Detail": "Paid to Myntra", "Amount": -250.0 }
-              ],
-              "Total": -1270.0
-            },
-            "Travel/Transport": {
-              "Transactions": [
-                { "Detail": "Paid to Uber", "Amount": -45.0 },
-                { "Detail": "Paid to Ola", "Amount": -35.0 },
-                { "Detail": "Paid to DMRC", "Amount": -120.0 }
-              ],
-              "Total": -200.0
-            },
-            "Utilities": {
-              "Transactions": [
-                { "Detail": "Electricity Bill", "Amount": -850.0 },
-                { "Detail": "Internet Bill", "Amount": -599.0 },
-                { "Detail": "Mobile Recharge", "Amount": -199.0 }
-              ],
-              "Total": -1648.0
-            },
-            "Entertainment": {
-              "Transactions": [
-                { "Detail": "Netflix Subscription", "Amount": -199.0 },
-                { "Detail": "Spotify Premium", "Amount": -119.0 },
-                { "Detail": "Movie Tickets", "Amount": -300.0 }
-              ],
-              "Total": -618.0
-            },
-            "Summary": {
-              "Total_Expense": -4241.0,
-              "Avg_Daily_Expense": -141.37,
-              "Avg_Monthly_Expense": -4241.0
-            }
-          };
-
+        try {
+          // Call the real API service
+          const analysisData = await APIService.analyzePDF(file.uri, file.name);
+          
           console.log('✅ Analysis complete');
-          await AnalysisStorage.saveAnalysisData(simulatedAnalysisData);
-          updateFinancialDataFromAnalysis(simulatedAnalysisData);
+          updateFinancialDataFromAnalysis(analysisData);
           
           setUploading(false);
           
@@ -180,7 +123,35 @@ export default function FinanceHome() {
               { text: 'Stay Here', style: 'cancel' }
             ]
           );
-        }, 2000); // 2 second delay to simulate processing
+        } catch (error) {
+          console.error('❌ PDF analysis failed:', error);
+          setUploading(false);
+          
+          let errorTitle = 'Processing Failed';
+          let errorMessage = 'There was an issue analyzing your document.';
+          
+          if (error.message?.includes('timed out') || error.message?.includes('starting up')) {
+            errorTitle = 'Service Starting Up';
+            errorMessage = 'The PDF analysis service is starting up (this happens with free tier services). Please try again in 30-60 seconds.';
+          } else if (error.message?.includes('Network request failed') || error.message?.includes('internet connection')) {
+            errorTitle = 'Connection Issue';
+            errorMessage = 'Unable to reach the analysis service. Please check your internet connection and try again.';
+          } else if (error.message?.includes('422')) {
+            errorTitle = 'File Format Issue';
+            errorMessage = 'The PDF file format is not supported or the file is corrupted. Please ensure you are uploading a valid PDF file with readable text.';
+          } else {
+            errorMessage = 'There was an issue analyzing your document. Please try again or check if the PDF contains readable financial data.';
+          }
+          
+          Alert.alert(
+            errorTitle, 
+            errorMessage,
+            [
+              { text: 'Try Again', onPress: () => handleDocumentUpload() },
+              { text: 'Cancel', style: 'cancel' }
+            ]
+          );
+        }
         
       } else {
         setUploading(false);
