@@ -2,7 +2,7 @@
 
 A React Native Expo app with an AI-powered Financial Sage that provides personalized financial advice based on your actual spending data.
 
-## 🚀 Features
+## Features
 
 - **AI Financial Sage**: Powered by Azure OpenAI GPT-4.1 with mystical RPG-style personality
 - **PDF Analysis**: Upload bank statements for personalized financial insights
@@ -10,7 +10,7 @@ A React Native Expo app with an AI-powered Financial Sage that provides personal
 - **Secure Processing**: Bank-level encryption messaging for user confidence
 - **Persistent Storage**: Conversation and financial data persist across sessions
 
-## 🔧 Setup Instructions
+##  Setup Instructions
 
 ### 1. Clone and Install Dependencies
 
@@ -66,14 +66,14 @@ npm run ios
 npm run android
 ```
 
-## 🔒 Security Features
+##  Security Features
 
 - **Environment Variables**: All API keys stored in `.env` file (not committed to git)
 - **Input Validation**: Environment variable validation before API calls
 - **Fallback System**: Graceful degradation if APIs are unavailable
 - **Privacy Messaging**: Clear communication about data processing
 
-## 🏗️ Architecture
+##  Architecture
 
 ### Core Components
 
@@ -89,7 +89,7 @@ npm run android
 3. **Conversation Memory**: Maintains context across multiple interactions
 4. **Error Handling**: Robust fallback mechanisms for API failures
 
-## 🧪 Development & Testing
+## Development & Testing
 
 ### Test LLM Integration
 
@@ -103,7 +103,7 @@ In development mode, a "TEST LLM" button appears in the sage interface for testi
 
 The app automatically validates required environment variables on startup and provides clear error messages for missing configurations.
 
-## 📱 Usage
+##  Usage
 
 1. **First Time Setup**: 
    - Open the Sage tab
@@ -120,7 +120,7 @@ The app automatically validates required environment variables on startup and pr
    - Secure processing with privacy assurance
    - Data is analyzed and stored locally for personalized advice
 
-## 🔧 Configuration Options
+##  Configuration Options
 
 ### API Configuration
 All API settings can be customized via environment variables:
@@ -136,14 +136,14 @@ The Financial Sage personality can be modified in `lib/config.ts`:
 - Response patterns and vocabulary
 - Financial philosophy and advice style
 
-## 🚨 Important Notes
+## Important Notes
 
 - **Never commit `.env` file**: It's already in `.gitignore`
 - **API Key Security**: Keep your Azure OpenAI keys secure
 - **Environment Variables**: Required for production deployment
 - **Fallback Responses**: App works even without API keys (limited functionality)
 
-## 📞 Support
+##  Support
 
 For issues or questions:
 1. Check console logs for detailed error messages
