@@ -2,6 +2,9 @@
 
 A React Native Expo app with an AI-powered Financial Sage that provides personalized financial advice based on your actual spending data.
 
+<img width="1197" height="880" alt="image" src="https://github.com/user-attachments/assets/18e03b26-ebfe-466a-aca8-639ba4f0e76e" />
+
+
 ## Features
 
 - **AI Financial Sage**: Powered by Azure OpenAI GPT-4.1 with mystical RPG-style personality
